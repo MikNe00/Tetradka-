@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Тетрадь</title>
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--tx:#23201b;--mu:#7a7468;--ac:#2f6f5e;--on:#fff;--ln:#e3ddcf;--grid:#cfe0ee;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--card:#222426;--tx:#ecebe6;--mu:#9a978e;--ac:#6fc2a8;--on:#111;--ln:#34363a;--grid:#2f4357;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17181a;--card:#222426;--tx:#ecebe6;--mu:#9a978e;--ac:#6fc2a8;--on:#111;--ln:#34363a;--grid:#2f4357;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--ln)}
+h1{font-size:20px;margin:0 4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h2{font-size:14px;color:var(--mu);margin:16px 14px 6px;font-weight:600}
+main{padding-bottom:100px}
+.c{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:12px 14px;margin:10px 14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer}
+.mu{color:var(--mu);font-size:14px}.empty{text-align:center;margin-top:50px}
+.x,.ic{border:0;background:none;color:var(--mu);font-size:18px;min-width:44px;min-height:44px}
+.ic{color:var(--ac);font-size:32px}
+.tabs{display:flex;gap:6px;margin:12px 14px}
+.tabs button{flex:1;padding:11px 4px;border:1px solid var(--ln);border-radius:12px;background:var(--card);color:var(--tx);font:inherit}
+.tabs .on{background:var(--ac);color:var(--on);border-color:var(--ac)}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:0;background:var(--ac);color:var(--on);font-size:32px;box-shadow:0 4px 14px #0004;z-index:12}
+.ti{width:calc(100% - 28px);margin:12px 14px 4px;border:0;border-bottom:1px solid var(--ln);background:none;color:var(--tx);font:600 20px -apple-system,system-ui,sans-serif;padding:6px 0;outline:0}
+.chk{display:flex;gap:8px;align-items:center;margin:8px 14px}
+textarea{display:block;width:100%;border:0;outline:0;resize:none;color:var(--tx);background:var(--card);overflow:hidden}
+.t{padding:14px;font:17px/1.5 -apple-system,system-ui,sans-serif;min-height:360px}
+.sm{margin:0 14px;width:calc(100% - 28px);border:1px solid var(--ln);border-radius:12px;min-height:90px}
+.g{width:calc(100% - 28px);margin:0 14px;min-height:360px;padding:0;font:18px/20px ui-monospace,Menlo,Consolas,monospace;letter-spacing:9.2px;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:20px 20px;background-attachment:local;white-space:pre-wrap;overflow-wrap:anywhere}
+.sy,.tb{display:flex;gap:6px;padding:8px 14px}.sy{overflow-x:auto}.tb{flex-wrap:wrap}
+.sy button,.tb button{min-width:40px;height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font:17px -apple-system,system-ui,sans-serif;flex:none}
+.tb .on{background:var(--ac);color:var(--on);border-color:var(--ac)}
+.ph{display:flex;gap:8px;overflow-x:auto;padding:8px 14px}.th{position:relative;flex:none}.th img{height:96px;border-radius:10px;display:block}
+.th button{position:absolute;top:3px;right:3px;border:0;border-radius:50%;width:26px;height:26px;background:#000a;color:#fff}
+.add{flex:none;height:96px;padding:0 16px;border:1px dashed var(--mu);border-radius:10px;background:none;color:var(--ac);font:inherit}
+.ms{width:100%;display:block;background:var(--card);touch-action:manipulation}
+.ms line{stroke:var(--tx);stroke-width:1}.ms .f{fill:var(--tx);stroke:var(--tx)}.ms .o{fill:none;stroke:var(--tx);stroke-width:1.8}
+.ms .st{stroke-width:1.5;fill:none}.ms text{fill:var(--tx);font-size:16px}.ms .cl{font-size:46px;font-family:"Noto Music","Apple Symbols","Segoe UI Symbol",serif}
+#dlg{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:30}
+#dlg[hidden],#vw[hidden]{display:none}
+.dc{background:var(--card);width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+.dc h3{margin:0 0 4px}
+#di{width:100%;padding:12px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--tx);font:17px -apple-system,system-ui,sans-serif;margin:8px 0}
+.ty{display:flex;gap:6px;margin:8px 0}.ty label{flex:1}.ty input{display:none}
+.ty span{display:block;text-align:center;padding:10px 4px;border:1px solid var(--ln);border-radius:10px;font-size:14px}
+.ty input:checked+span{background:var(--ac);color:var(--on);border-color:var(--ac)}
+.br{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.b{padding:11px 18px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font:inherit}
+.b.p{background:var(--ac);color:var(--on);border-color:var(--ac)}.b.dn{background:#c0392b;color:#fff;border-color:#c0392b}
+#vw{position:fixed;inset:0;background:#000e;z-index:40;display:flex;align-items:center;justify-content:center}#vw img{max-width:100%;max-height:100%}
+html,body{overflow-x:hidden;max-width:100%;-webkit-text-size-adjust:100%}
+main{max-width:820px;margin:0 auto}
+header{padding-left:max(10px,calc((100% - 820px)/2));padding-right:max(10px,calc((100% - 820px)/2))}
+img,svg,textarea,select,input{max-width:100%}h1{min-width:0}
+.sm{font:16px/1.4 -apple-system,system-ui,sans-serif}
+.ms .hl{fill:var(--ac);opacity:.2}#ms.dr svg.ms{touch-action:none}
+.tb.ins{position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:9;background:var(--bg)}
+.tb.sb button{border-color:var(--ac);color:var(--ac)}
+.fr{margin:10px 8px;border:1px solid var(--ln);border-radius:12px;overflow:hidden;background:var(--card)}
+.fh{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 2px 12px;color:var(--mu);font-size:13px}.fh button{border:0;background:none;color:var(--mu);font-size:16px;min-width:40px;min-height:36px}
+.qw{display:grid;gap:4px;margin:8px 14px}.qi{position:relative}.qi img{width:100%;height:110px;object-fit:cover;border-radius:8px;display:block}.qi:only-child img{height:auto;max-height:70vh}
+.qi button{position:absolute;top:3px;right:3px;border:0;border-radius:50%;width:26px;height:26px;background:#000a;color:#fff}
+.fab{display:grid;place-items:center;padding:0 0 4px;line-height:1;font-size:34px;font-weight:300}
+.t.mn,.g.mn{min-height:120px}
+.pw{position:relative;margin:8px 14px}.pw img{width:100%;border-radius:10px;display:block}.pw button{position:absolute;top:6px;right:6px;border:0;border-radius:50%;width:30px;height:30px;background:#000a;color:#fff}
+.tb select{height:40px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font:16px -apple-system,system-ui,sans-serif;padding:0 8px;max-width:49%}
+.ms .lb{font-size:13px;font-weight:600;text-anchor:middle}.ms .sg{fill:none;stroke:var(--tx);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.sgt{fill:none;stroke:currentColor;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+#dw{position:fixed;inset:0;background:#000b;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}#dw[hidden]{display:none}
+#dc{background:var(--card);border-radius:14px;touch-action:none;width:min(86vw,300px);height:min(86vw,300px)}
+</style></head><body>
+<header id="hd"></header><main id="app"></main>
+<button class="fab" id="fab">+</button><div id="dlg" hidden></div><div id="vw" hidden></div>
+<input type="file" id="fi" accept="image/*" multiple hidden>
+<script>
+const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TY={text:'Обычный',grid:'В клетку',music:'Нотный'},SY=['²','³','√','½','π','∑','∫','∞','±','×','÷','=','≠','≤','≥','≈','→','(',')','[',']','^','_','α','β','Δ','°'];
+let S={subs:[]},V={scr:'subs',tab:'lec'},T={dur:4,acc:'',er:0},db=null,tm,DCB=null;
+const mk=(t,ty)=>({id:uid(),title:t||'Без названия',ty,tx:'',nt:[],ns:6,ph:[]});
+function idb(){return new Promise((ok,no)=>{try{const r=indexedDB.open('tetrad',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no()}catch(e){no(e)}})}
+async function load(){try{db=await idb();const v=await new Promise(ok=>{const q=db.transaction('kv').objectStore('kv').get('s');q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)});if(v)S=v}catch(e){}render()}
+function save(){clearTimeout(tm);tm=setTimeout(()=>{try{db&&db.transaction('kv','readwrite').objectStore('kv').put(S,'s')}catch(e){}},400)}
+const sub=()=>S.subs.find(x=>x.id===V.sid),H=()=>sub().hw.find(x=>x.id===V.id),SH=()=>V.scr==='lec'?sub().lec.find(x=>x.id===V.id):H().sh;
+function musicSvg(s){const n=s.ns;let g='';
+ for(let i=0;i<n;i++){const y=30+i*95;for(let k=0;k<5;k++)g+=`<line x1="8" x2="332" y1="${y+k*10}" y2="${y+k*10}"/>`;
+  g+=`<line x1="8" x2="8" y1="${y}" y2="${y+40}"/><line x1="332" x2="332" y1="${y}" y2="${y+40}"/><text class="cl" x="12" y="${y+36}">𝄞</text>`}
+ s.nt.forEach(o=>{const y=30+o.s*95,cx=o.x,cy=y+40-o.p*5,up=o.p<4,sx=up?cx+5.2:cx-5.2;
+  for(let q=-2;q>=o.p;q-=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  for(let q=10;q<=o.p;q+=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  g+=`<ellipse cx="${cx}" cy="${cy}" rx="5.6" ry="4.2" transform="rotate(-20 ${cx} ${cy})" class="${o.d>=4?'f':'o'}"/>`;
+  if(o.d>=2)g+=`<line class="st" x1="${sx}" x2="${sx}" y1="${cy}" y2="${up?cy-30:cy+30}"/>`;
+  if(o.d===8)g+=up?`<path class="st" d="M${sx} ${cy-30}q9 6 5 17"/>`:`<path class="st" d="M${sx} ${cy+30}q9 -6 5 -17"/>`;
+  if(o.a)g+=`<text x="${cx-17}" y="${cy+5}">${o.a}</text>`});
+ return `<svg class="ms" viewBox="0 0 340 ${30+n*95}">${g}</svg>`}
+function tapMs(e,sv){const r=sv.getBoundingClientRect(),k=340/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k,s=SH();
+ const i=Math.max(0,Math.min(s.ns-1,Math.round((y-50)/95))),p=Math.max(-4,Math.min(12,Math.round((70+i*95-y)/5))),nx=Math.max(44,Math.min(324,Math.round(x/10)*10));
+ if(T.er){const j=s.nt.findIndex(o=>o.s===i&&Math.abs(o.x-x)<10&&Math.abs(o.p-p)<=1);if(j>=0)s.nt.splice(j,1)}
+ else{s.nt=s.nt.filter(o=>!(o.s===i&&o.x===nx&&o.p===p));s.nt.push({s:i,x:nx,p,d:T.dur,a:T.acc})}
+ $('#ms').innerHTML=musicSvg(s);save()}
+function ed(s){
+ if(s.ty==='text')return `<textarea class="t" data-f="tx" placeholder="Пишите здесь…">${esc(s.tx)}</textarea>`;
+ if(s.ty==='grid')return `<div class="sy">${SY.map(c=>`<button data-a="sym" data-id="${c}">${c}</button>`).join('')}</div><textarea class="g" data-f="tx" spellcheck="false" placeholder="Один символ — одна клетка">${esc(s.tx)}</textarea>`;
+ const b=(a,v,l,on)=>`<button class="${on?'on':''}" data-a="${a}" data-id="${v}">${l}</button>`;
+ return `<div class="tb">${[[1,'Целая'],[2,'1/2'],[4,'1/4'],[8,'1/8']].map(d=>b('dur',d[0],d[1],T.dur==d[0])).join('')}</div><div class="tb">${b('acc','','без знака',!T.acc)}${b('acc','♯','♯',T.acc==='♯')}${b('acc','♭','♭',T.acc==='♭')}${b('er','',' Ластик',T.er)}${b('stv','','＋ стан',0)}</div><div id="ms">${musicSvg(s)}</div>`}
+function render(){const sb=sub();let h='',t='Тетрадь',fab=1;
+ if(V.scr==='subs')h=S.subs.length?S.subs.map(s=>`<div class="c row" data-a="open" data-id="${s.id}"><div><b>${esc(s.name)}</b><div class="mu">Лекций: ${s.lec.length} · Заданий: ${s.hw.length}</div></div><button class="x" data-a="delsub" data-id="${s.id}">✕</button></div>`).join(''):'<p class="mu empty">Добавьте первый предмет кнопкой «＋»</p>';
+ else if(V.scr==='sub'){t=sb.name;const L=V.tab==='lec',li=L?sb.lec:sb.hw;
+  h=`<div class="tabs"><button class="${L?'on':''}" data-a="tab" data-id="lec">Лекции</button><button class="${L?'':'on'}" data-a="tab" data-id="hw">Домашние задания</button></div>`+(li.length?li.map(x=>`<div class="c row" data-a="${L?'lec':'hwk'}" data-id="${x.id}"><div><b>${esc(x.title)}</b><div class="mu">${L?TY[x.ty]+(x.ph.length?' · фото: '+x.ph.length:''):(x.done?'✓ выполнено':'не выполнено')+' · '+TY[x.sh.ty]}</div></div><button class="x" data-a="del" data-id="${x.id}">✕</button></div>`).join(''):'<p class="mu empty">Пока пусто. Нажмите «＋»</p>')}
+ else if(V.scr==='lec'){const s=SH();t=sb.name;fab=0;
+  h=`<input class="ti" data-f="title" value="${esc(s.title)}"><div class="ph">${s.ph.map((p,i)=>`<div class="th"><img src="${p}" data-a="view" data-id="${i}"><button data-a="delph" data-id="${i}">✕</button></div>`).join('')}<button class="add" data-a="addph">＋ Фото</button></div>`+ed(s)}
+ else{const o=H();t=sb.name;fab=0;
+  h=`<input class="ti" data-o="h" data-f="title" value="${esc(o.title)}"><label class="chk"><input type="checkbox" data-o="h" data-f="done" ${o.done?'checked':''}> Выполнено</label><h2>Задание</h2><textarea class="sm" data-o="h" data-f="task" placeholder="Что нужно сделать">${esc(o.task)}</textarea><h2>Пояснение</h2><textarea class="sm" data-o="h" data-f="expl" placeholder="Пояснение, советы, ссылки">${esc(o.expl)}</textarea><h2>Выполненное задание</h2>`+ed(o.sh)}
+ $('#hd').innerHTML=(V.scr==='subs'?'':'<button class="ic" data-a="back">‹</button>')+`<h1>${esc(t)}</h1>`;
+ $('#app').innerHTML=h;$('#fab').style.display=fab?'':'none';fit()}
+function fit(el){(el?[el]:document.querySelectorAll('textarea')).forEach(t=>{t.style.height='auto';t.style.height=Math.max(t.scrollHeight,t.classList.contains('sm')?90:360)+'px'})}
+function dlg(t,o,cb){const d=$('#dlg');DCB=cb;
+ d.innerHTML=`<div class="dc"><h3>${t}</h3>${o.msg?`<div class="mu">${o.msg}</div>`:''}${o.inp?`<input id="di" type="text" placeholder="${o.inp}" value="${esc(o.val||'')}" maxlength="80">`:''}${o.ty?`<div class="ty">${Object.keys(TY).map((k,i)=>`<label><input type="radio" name="ty" value="${k}" ${i?'':'checked'}><span>${TY[k]}</span></label>`).join('')}</div>`:''}<div class="br"><button class="b" data-a="dx">Отмена</button><button class="b p${o.dn?' dn':''}" data-a="dok">${o.ok||'Готово'}</button></div></div>`;
+ d.hidden=false;if(o.inp)setTimeout(()=>$('#di').focus(),60)}
+const ask=(t,msg,f)=>dlg(t,{msg,ok:'Удалить',dn:1},f);
+function ph(f){return new Promise(ok=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1100/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.72))};i.onerror=()=>ok(null);i.src=r.result};r.onerror=()=>ok(null);r.readAsDataURL(f)})}
+document.addEventListener('click',e=>{
+ const m=e.target.closest('svg.ms');if(m)return tapMs(e,m);
+ if(e.target.closest('#vw')){$('#vw').hidden=true;return}
+ const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id,sb=V.sid?sub():null;
+ if(a==='open'){V={scr:'sub',sid:id,tab:'lec'};scrollTo(0,0)}
+ else if(a==='back'){V=V.scr==='sub'?{scr:'subs',tab:'lec'}:{scr:'sub',sid:V.sid,tab:V.scr==='lec'?'lec':'hw'};scrollTo(0,0)}
+ else if(a==='tab')V.tab=id;
+ else if(a==='lec'||a==='hwk'){V={scr:a==='lec'?'lec':'hw',sid:V.sid,id,tab:V.tab};scrollTo(0,0)}
+ else if(a==='delsub'){const s=S.subs.find(x=>x.id===id);return ask('Удалить предмет?',esc(s.name)+' и все записи в нём будут удалены.',()=>{S.subs=S.subs.filter(x=>x.id!==id);save();render()})}
+ else if(a==='del'){const k=V.tab==='lec'?'lec':'hw';return ask('Удалить запись?','Это действие нельзя отменить.',()=>{sb[k]=sb[k].filter(x=>x.id!==id);save();render()})}
+ else if(a==='dx'){$('#dlg').hidden=true;return}
+ else if(a==='dok'){const v=($('#di')||{}).value||'',r=document.querySelector('input[name=ty]:checked'),f=DCB;$('#dlg').hidden=true;if(f)f(v.trim(),r?r.value:'text');return}
+ else if(a==='sym'){const t=$('textarea.g'),p=t.selectionStart||0,q=t.selectionEnd||0;t.value=t.value.slice(0,p)+id+t.value.slice(q);SH().tx=t.value;t.focus();t.setSelectionRange(p+1,p+1);fit(t);save();return}
+ else if(a==='dur'){T.dur=+id;render();return}
+ else if(a==='acc'){T.acc=id;render();return}
+ else if(a==='er'){T.er=T.er?0:1;render();return}
+ else if(a==='stv'){SH().ns++;save()}
+ else if(a==='addph'){$('#fi').click();return}
+ else if(a==='view'){$('#vw').innerHTML=`<img src="${el.src}">`;$('#vw').hidden=false;return}
+ else if(a==='delph'){SH().ph.splice(+id,1);save()}
+ render()});
+$('#fab').onclick=()=>{
+ if(V.scr==='subs')dlg('Новый предмет',{inp:'Название предмета'},n=>{if(!n)return;S.subs.push({id:uid(),name:n,lec:[],hw:[]});save();render()});
+ else if(V.tab==='lec')dlg('Новая лекция',{inp:'Тема лекции',ty:1,msg:'Выберите тип листка'},(n,ty)=>{const s=mk(n,ty);sub().lec.push(s);V={scr:'lec',sid:V.sid,id:s.id,tab:'lec'};save();render()});
+ else dlg('Новое задание',{inp:'Название задания',ty:1,msg:'Тип листка для выполненного задания'},(n,ty)=>{const o={id:uid(),title:n||'Без названия',task:'',expl:'',done:false,sh:mk('',ty)};sub().hw.push(o);V={scr:'hw',sid:V.sid,id:o.id,tab:'hw'};save();render()})};
+document.addEventListener('input',e=>{const t=e.target,f=t.dataset.f;if(!f)return;(t.dataset.o==='h'?H():SH())[f]=t.type==='checkbox'?t.checked:t.value;if(t.tagName==='TEXTAREA')fit(t);save()});
+$('#fi').onchange=async e=>{const s=SH();for(const f of e.target.files){const d=await ph(f);if(d)s.ph.push(d)}e.target.value='';save();render()};
+let L=null,LK='',DS=[],dn=0;T.m='n';
+const CG={g:['𝄞',2],f:['𝄢',6],a:['𝄡',4],t:['𝄡',6],s:['𝄡',0],m:['𝄡',2],b:['𝄡',8]},KSH={g:0,f:-2,a:-1,t:1,s:2,m:-3,b:-4},SP=[8,5,9,6,3,7,4],FP=[4,7,3,6,2,5,1];
+const CL=[['g','Скрипичный'],['f','Басовый'],['a','Альтовый'],['t','Теноровый'],['s','Сопрановый'],['m','Меццо-сопрановый'],['b','Баритоновый']];
+const SM=['Соль','Ре','Ля','Ми','Си','Фа♯','До♯'],Sm=['ми','си','фа♯','до♯','соль♯','ре♯','ля♯'],FM=['Фа','Си♭','Ми♭','Ля♭','Ре♭','Соль♭','До♭'],Fm=['ре','соль','до','фа','си♭','ми♭','ля♭'];
+const KS=[[0,'Без знаков — До мажор / ля минор']];for(let i=1;i<=7;i++)KS.push([i,'♯'.repeat(i)+' — '+SM[i-1]+' мажор / '+Sm[i-1]+' минор']);for(let i=1;i<=7;i++)KS.push([-i,'♭'.repeat(i)+' — '+FM[i-1]+' мажор / '+Fm[i-1]+' минор']);
+function musicSvg(s){const n=s.ns,cl=s.clef||'g',c=CG[cl],k=s.key||0;let g='';
+ for(let i=0;i<n;i++){const y=30+i*95;for(let j=0;j<5;j++)g+=`<line x1="8" x2="332" y1="${y+j*10}" y2="${y+j*10}"/>`;
+  g+=`<line x1="8" x2="8" y1="${y}" y2="${y+40}"/><line x1="332" x2="332" y1="${y}" y2="${y+40}"/><text class="cl" x="10" y="${y+46-c[1]*5}">${c[0]}</text>`;
+  for(let j=0;j<Math.abs(k);j++){let q=(k>0?SP:FP)[j]+KSH[cl];while(q>9)q-=7;while(q<-1)q+=7;g+=`<text x="${40+j*8}" y="${y+45-q*5}">${k>0?'♯':'♭'}</text>`}}
+ s.nt.forEach(o=>{const y=30+o.s*95,cx=o.x;
+  if(o.r){g+=o.d===1?`<rect class="f" x="${cx-6}" y="${y+10}" width="12" height="5"/>`:o.d===2?`<rect class="f" x="${cx-6}" y="${y+15}" width="12" height="5"/>`:o.d===4?`<path class="st" d="M${cx-3} ${y+8}l6 8l-6 7l6 8"/>`:`<path class="st" d="M${cx+3} ${y+13}l-5 14"/><circle class="f" cx="${cx-1}" cy="${y+14}" r="2.2"/>`;return}
+  const cy=y+40-o.p*5,up=o.p<4,sx=up?cx+5.2:cx-5.2;
+  for(let q=-2;q>=o.p;q-=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  for(let q=10;q<=o.p;q+=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  g+=`<ellipse cx="${cx}" cy="${cy}" rx="5.6" ry="4.2" transform="rotate(-20 ${cx} ${cy})" class="${o.d>=4?'f':'o'}"/>`;
+  if(o.d>=2)g+=`<line class="st" x1="${sx}" x2="${sx}" y1="${cy}" y2="${up?cy-30:cy+30}"/>`;
+  if(o.d===8)g+=up?`<path class="st" d="M${sx} ${cy-30}q9 6 5 17"/>`:`<path class="st" d="M${sx} ${cy+30}q9 -6 5 -17"/>`;
+  if(o.a)g+=`<text x="${cx-17}" y="${cy+5}">${o.a}</text>`});
+ (s.lb||[]).forEach(a=>g+=`<text class="lb" x="${a.x}" y="${a.y}">${esc(a.t)}</text>`);
+ (s.sg||[]).forEach(a=>g+=`<path class="sg" d="${a.d}" transform="translate(${a.x-13} ${a.y-13}) scale(.26)"/>`);
+ return `<svg class="ms" viewBox="0 0 340 ${30+n*95}">${g}</svg>`}
+function tapMs(e,sv){const r=sv.getBoundingClientRect(),k=340/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k,s=CUR();s.lb=s.lb||[];s.sg=s.sg||[];
+ const i=Math.max(0,Math.min(s.ns-1,Math.round((y-50)/95))),p=Math.max(-4,Math.min(12,Math.round((70+i*95-y)/5))),nx=Math.max(Math.ceil((44+Math.abs(s.key||0)*8)/10)*10,Math.min(324,Math.round(x/10)*10)),cn=MSC(),up=()=>{cn.innerHTML=musicSvg(s);save()};
+ if(T.m==='e'){const a=s.lb.findIndex(a=>Math.abs(a.x-x)<22&&Math.abs(a.y-y)<10),b=s.sg.findIndex(a=>Math.abs(a.x-x)<14&&Math.abs(a.y-y)<14);
+  if(a>=0)s.lb.splice(a,1);else if(b>=0)s.sg.splice(b,1);else{const j=s.nt.findIndex(o=>o.s===i&&Math.abs(o.x-x)<10&&(o.r||Math.abs(o.p-p)<=1));if(j>=0)s.nt.splice(j,1)}}
+ else if(T.m==='l'){const j=s.lb.findIndex(a=>Math.abs(a.x-x)<22&&Math.abs(a.y-y)<10);return dlg(j>=0?'Изменить подпись':'Подпись',{inp:'Например: Am7 или «до»',val:j>=0?s.lb[j].t:'',msg:'Пустая подпись удалит надпись'},t=>{if(j>=0)s.lb.splice(j,1);if(t)s.lb.push({x,y,t});up()})}
+ else if(T.m==='g'){const st=(S.stamps||[]).find(a=>a.id===T.sg);if(st)s.sg.push({x,y,d:st.d})}
+ else if(T.m==='r'){s.nt=s.nt.filter(o=>!(o.s===i&&o.x===nx));s.nt.push({s:i,x:nx,r:1,d:T.dur,p:4})}
+ else{s.nt=s.nt.filter(o=>!(o.s===i&&o.x===nx&&(o.r||o.p===p)));s.nt.push({s:i,x:nx,p,d:T.dur,a:T.acc})}
+ up()}
+function ed(s){const sy=`<div class="sy">${SY.map(c=>`<button data-a="sym2" data-id="${c}">${c}</button>`).join('')}</div>`,gr=s.ty==='grid';
+ if(s.pt)return (gr?sy:'')+s.pt.map((p,i)=>p.k==='t'?`<textarea class="${gr?'g':'t'}${s.pt.length>1?' mn':''}" data-i="${i}" spellcheck="${!gr}" placeholder="${i?'':gr?'Один символ — одна клетка':'Пишите здесь…'}">${esc(p.tx)}</textarea>`:`<div class="pw"><img src="${p.src}" data-a="vimg"><button data-a="dpt" data-id="${i}">✕</button></div>`).join('');
+ if(s.ty==='text')return `<textarea class="t" data-f="tx" placeholder="Пишите здесь…">${esc(s.tx)}</textarea>`;
+ if(gr)return sy+`<textarea class="g" data-f="tx" spellcheck="false" placeholder="Один символ — одна клетка">${esc(s.tx)}</textarea>`;
+ const b=(a,v,l,on)=>`<button class="${on?'on':''}" data-a="${a}" data-id="${v}">${l}</button>`,sel=(k,o,cur)=>`<select data-k="${k}">${o.map(x=>`<option value="${x[0]}" ${x[0]==cur?'selected':''}>${x[1]}</option>`).join('')}</select>`;
+ const sg=(S.stamps||[]).map(st=>`<button class="${T.m==='g'&&T.sg===st.id?'on':''}" data-a="sg" data-id="${st.id}"><svg viewBox="0 0 100 100" width="24" height="24"><path d="${st.d}" class="sgt"/></svg></button>`).join('');
+ return `<div class="tb">${sel('clef',CL,s.clef||'g')}${sel('key',KS,s.key||0)}</div><div class="tb">${[['n','Нота'],['r','Пауза'],['l','Подпись'],['e','Ластик']].map(m=>b('md',m[0],m[1],T.m===m[0])).join('')}</div><div class="tb">${[[1,'Целая'],[2,'1/2'],[4,'1/4'],[8,'1/8']].map(d=>b('dur',d[0],d[1],T.dur==d[0])).join('')}${b('acc','','без знака',!T.acc)}${b('acc','♯','♯',T.acc==='♯')}${b('acc','♭','♭',T.acc==='♭')}</div><div class="tb">${sg}${T.m==='g'?b('delsg','','🗑 знак',0):''}${b('draw','','✎ Свой знак',0)}${b('stv','','＋ стан',0)}</div><div id="ms">${musicSvg(s)}</div>`}
+function fit(el){(el?[el]:document.querySelectorAll('textarea')).forEach(t=>{const m=t.classList.contains('sm')?90:t.classList.contains('mn')?120:360;t.style.height='auto';t.style.height=Math.max(t.scrollHeight,m)+'px'})}
+function mig(s){if(s&&!s.pt&&(s.ty==='text'||s.ty==='grid')){s.pt=[{k:'t',tx:s.tx||''}];(s.ph||[]).forEach(p=>s.pt.push({k:'p',src:p}));s.ph=[];if(s.pt[s.pt.length-1].k==='p')s.pt.push({k:'t',tx:''});save()}}
+const _r=render;render=function(){if(V.scr==='lec'){try{mig(SH())}catch(e){}}const kk=V.scr+V.id;if(kk!==LK){LK=kk;L=null;SEL=null}_r();const f=$('#fab'),cam=V.scr==='lec'&&SH().pt;if(cam)f.style.display='';f.textContent=cam?'📷':'+';f.style.fontSize=cam?'26px':''};
+const _f=$('#fab').onclick;$('#fab').onclick=e=>{if(V.scr==='lec')$('#fi').click();else _f(e)};
+document.addEventListener('selectionchange',()=>{const t=document.activeElement;if(t&&t.tagName==='TEXTAREA'&&(t.dataset.i!=null||t.classList.contains('g')))L={i:t.dataset.i!=null?+t.dataset.i:-1,p:t.selectionStart}});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.i!=null){SH().pt[+t.dataset.i].tx=t.value;fit(t);save()}});
+document.addEventListener('change',e=>{const t=e.target,k=t.dataset&&t.dataset.k;if(!k)return;const s=SH();if(k==='clef')s.clef=t.value;else s.key=+t.value;$('#ms').innerHTML=musicSvg(s);save()});
+document.body.insertAdjacentHTML('beforeend','<div id="dw" hidden><canvas id="dc" width="300" height="300"></canvas><div class="br"><button class="b" data-a="dwx">Очистить</button><button class="b" data-a="dwc">Отмена</button><button class="b p" data-a="dwo">Готово</button></div></div>');
+const cv=()=>$('#dc').getContext('2d'),pt=e=>{const r=$('#dc').getBoundingClientRect();return[(e.clientX-r.left)*300/r.width,(e.clientY-r.top)*300/r.height]};
+$('#dc').addEventListener('pointerdown',e=>{dn=1;e.target.setPointerCapture(e.pointerId);const p=pt(e),c=cv();DS.push([p]);c.lineWidth=7;c.lineCap=c.lineJoin='round';c.strokeStyle=getComputedStyle(document.body).color;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(p[0]+.1,p[1]);c.stroke()});
+$('#dc').addEventListener('pointermove',e=>{if(!dn)return;const p=pt(e),q=DS[DS.length-1],l=q[q.length-1],c=cv();q.push(p);c.beginPath();c.moveTo(l[0],l[1]);c.lineTo(p[0],p[1]);c.stroke()});
+['pointerup','pointercancel'].forEach(t=>$('#dc').addEventListener(t,()=>dn=0));
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id;
+ const A={md(){T.m=id;render()},sg(){T.m='g';T.sg=id;render()},delsg(){S.stamps=(S.stamps||[]).filter(x=>x.id!==T.sg);T.m='n';save();render()},
+  draw(){DS=[];cv().clearRect(0,0,300,300);$('#dw').hidden=false},dwx(){DS=[];cv().clearRect(0,0,300,300)},dwc(){$('#dw').hidden=true},
+  dwo(){$('#dw').hidden=true;if(!DS.length)return;const d=DS.map(st=>'M'+st.map(p=>Math.round(p[0]/3)+' '+Math.round(p[1]/3)).join('L')).join(''),i=uid();(S.stamps=S.stamps||[]).push({id:i,d});T.m='g';T.sg=i;save();render()},
+  vimg(){$('#vw').innerHTML=`<img src="${el.src}">`;$('#vw').hidden=false},
+  dpt(){const s=SH(),i=+id,t=s.pt[i-1],u=s.pt[i+1];s.pt.splice(i-1,3,{k:'t',tx:t.tx+(t.tx&&u.tx?'\n':'')+u.tx});save();render()},
+  sym2(){const s=SH(),ta=(L&&L.i>=0&&document.querySelector(`textarea[data-i="${L.i}"]`))||document.querySelector('textarea.g');if(!ta)return;const p=L?Math.min(L.p,ta.value.length):ta.value.length;ta.value=ta.value.slice(0,p)+id+ta.value.slice(p);if(ta.dataset.i!=null)s.pt[+ta.dataset.i].tx=ta.value;else s.tx=ta.value;ta.focus();ta.setSelectionRange(p+1,p+1);fit(ta);save()}};
+ if(!A[a])return;e.stopImmediatePropagation();A[a]()},true);
+$('#fi').onchange=async e=>{const s=SH();let l=L;L=null;const fs=[...e.target.files];e.target.value='';for(const f of fs){const d=await ph(f);if(!d)continue;
+ if(s.pt){let i=l?l.i:s.pt.length-1;if(!s.pt[i]||s.pt[i].k!=='t')i=s.pt.length-1;const t=s.pt[i],p=l?Math.min(l.p,t.tx.length):t.tx.length;s.pt.splice(i,1,{k:'t',tx:t.tx.slice(0,p)},{k:'p',src:d},{k:'t',tx:t.tx.slice(p)});l={i:i+2,p:0}}else s.ph.push(d)}
+ save();render()};
+let SEL=null,FI=null,LT=0,LP=[0,0],DG=null,MV=0;
+const CUR=()=>FI!=null?SH().pt[FI]:SH(),MSC=()=>FI!=null?document.querySelector(`[data-fi="${FI}"] #ms`):$('#ms');
+const pos=(e,sv)=>{const r=sv.getBoundingClientRect(),k=340/r.width;return[(e.clientX-r.left)*k,(e.clientY-r.top)*k]};
+const hitT=(s,x,y)=>{const li=(s.lb||[]).findIndex(a=>Math.abs(a.x-x)<4*a.t.length+8&&y>a.y-15&&y<a.y+6);if(li>=0)return{t:'lb',i:li,o:s};const ni=s.nt.findIndex(o=>{const y0=30+o.s*95,cy=o.r?y0+20:y0+40-o.p*5;return Math.abs(o.x-x)<10&&Math.abs(cy-y)<(o.r?16:9)});return ni>=0?{t:'nt',i:ni,o:s}:null};
+const same=h=>h&&SEL&&h.t===SEL.t&&h.i===SEL.i&&h.o===SEL.o;
+['pointerdown','click','change'].forEach(t=>document.addEventListener(t,e=>{const f=e.target.closest&&e.target.closest('[data-fi]');FI=f?+f.dataset.fi:null},true));
+function musicSvg(s){const n=s.ns,cl=s.clef||'g',c=CG[cl],k=s.key||0,hs=(t,i)=>SEL&&SEL.o===s&&SEL.t===t&&SEL.i===i;let g='';
+ for(let i=0;i<n;i++){const y=30+i*95;for(let j=0;j<5;j++)g+=`<line x1="8" x2="332" y1="${y+j*10}" y2="${y+j*10}"/>`;
+  g+=`<line x1="8" x2="8" y1="${y}" y2="${y+40}"/><line x1="332" x2="332" y1="${y}" y2="${y+40}"/><text class="cl" x="10" y="${y+46-c[1]*5+(cl==='g'?0:10)}">${c[0]}</text>`;
+  for(let j=0;j<Math.abs(k);j++){let q=(k>0?SP:FP)[j]+KSH[cl];while(q>9)q-=7;while(q<-1)q+=7;g+=`<text x="${40+j*8}" y="${y+45-q*5}">${k>0?'♯':'♭'}</text>`}}
+ s.nt.forEach((o,ni)=>{const y=30+o.s*95,cx=o.x;if(hs('nt',ni))g+=`<rect class="hl" x="${cx-12}" y="${y-16}" width="24" height="72" rx="6"/>`;
+  if(o.r){g+=o.d===1?`<rect class="f" x="${cx-6}" y="${y+10}" width="12" height="5"/>`:o.d===2?`<rect class="f" x="${cx-6}" y="${y+15}" width="12" height="5"/>`:o.d===4?`<path class="st" d="M${cx-3} ${y+8}l6 8l-6 7l6 8"/>`:`<path class="st" d="M${cx+3} ${y+13}l-5 14"/><circle class="f" cx="${cx-1}" cy="${y+14}" r="2.2"/>`;return}
+  const cy=y+40-o.p*5,up=o.sd?o.sd==='u':o.p<4,sl=o.sl||30,sx=up?cx+5.2:cx-5.2;
+  for(let q=-2;q>=o.p;q-=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  for(let q=10;q<=o.p;q+=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
+  g+=`<ellipse cx="${cx}" cy="${cy}" rx="5.6" ry="4.2" transform="rotate(-20 ${cx} ${cy})" class="${o.d>=4?'f':'o'}"/>`;
+  if(o.d>=2)g+=`<line class="st" x1="${sx}" x2="${sx}" y1="${cy}" y2="${up?cy-sl:cy+sl}"/>`;
+  if(o.d===8)g+=up?`<path class="st" d="M${sx} ${cy-sl}q9 6 5 17"/>`:`<path class="st" d="M${sx} ${cy+sl}q9 -6 5 -17"/>`;
+  if(o.a)g+=`<text x="${cx-17}" y="${cy+5}">${o.a}</text>`});
+ (s.lb||[]).forEach((a,li)=>g+=(hs('lb',li)?`<rect class="hl" x="${a.x-4*a.t.length-6}" y="${a.y-14}" width="${8*a.t.length+12}" height="19" rx="5"/>`:'')+`<text class="lb" x="${a.x}" y="${a.y}">${esc(a.t)}</text>`);
+ (s.sg||[]).forEach(a=>g+=`<path class="sg" d="${a.d}" transform="translate(${a.x-13} ${a.y-13}) scale(.26)"/>`);
+ return `<svg class="ms" viewBox="0 0 340 ${30+n*95}">${g}</svg>`}
+const _tm=tapMs;
+tapMs=function(e,sv){if(MV)return;const s=CUR(),[x,y]=pos(e,sv),h=T.m==='e'?null:hitT(s,x,y),now=Date.now(),dbl=now-LT<450&&Math.abs(x-LP[0])<18&&Math.abs(y-LP[1])<18;LT=now;LP=[x,y];
+ if(SEL){if(same(h)){if(SEL.t==='lb')editLb();return}SEL=null;render();return}
+ if(h){if(dbl){SEL=h;render()}return}
+ _tm(e,sv)};
+function editLb(){const s=SEL.o,a=s.lb[SEL.i];dlg('Изменить подпись',{inp:'Текст',val:a.t,msg:'Пустой текст удалит подпись'},t=>{if(t)a.t=t;else{s.lb.splice(SEL.i,1);SEL=null}save();render()})}
+document.addEventListener('pointerdown',e=>{const sv=e.target.closest&&e.target.closest('svg.ms');if(!sv||!SEL)return;const[x,y]=pos(e,sv);if(same(hitT(CUR(),x,y))){DG={x,y};try{MSC().setPointerCapture(e.pointerId)}catch(_){}}});
+document.addEventListener('pointermove',e=>{if(!DG)return;const cn=MSC(),sv=cn&&cn.querySelector('svg.ms');if(!sv)return;const[x,y]=pos(e,sv);if(!MV&&Math.hypot(x-DG.x,y-DG.y)<4)return;MV=1;const s=SEL.o;
+ if(SEL.t==='lb'){const a=s.lb[SEL.i];a.x=Math.max(10,Math.min(330,x));a.y=Math.max(12,Math.min(26+s.ns*95,y))}
+ else{const o=s.nt[SEL.i],i=Math.max(0,Math.min(s.ns-1,Math.round((y-50)/95)));o.s=i;o.x=Math.max(Math.ceil((44+Math.abs(s.key||0)*8)/10)*10,Math.min(324,Math.round(x/10)*10));if(!o.r)o.p=Math.max(-4,Math.min(12,Math.round((70+i*95-y)/5)))}
+ cn.innerHTML=musicSvg(s)});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(!DG)return;DG=null;if(MV){save();setTimeout(()=>MV=0,200)}}));
+function selBar(s){if(!SEL||SEL.o!==s)return'';const b=(a,l)=>`<button data-a="${a}">${l}</button>`;return `<div class="tb sb">${SEL.t==='lb'?b('lbe','Изменить текст'):b('sdu','Хвост ↑')+b('sdd','Хвост ↓')+b('sda','Авто')+b('slp','Длиннее')+b('slm','Короче')}${b('xdel','Удалить')}</div>`}
+function parts(s){const gr=s.ty==='grid',sy=`<div class="sy">${SY.map(c=>`<button data-a="sym2" data-id="${c}">${c}</button>`).join('')}</div>`,mn=s.pt.length>1?' mn':'';
+ return `<div class="tb ins"><button data-a="ins" data-id="m">＋ Нотный стан</button><button data-a="ins" data-id="g">＋ Клетки</button><button data-a="addph">📷 Фото</button></div>`+(gr?sy:'')+s.pt.map((p,i)=>{
+  if(p.k==='t')return `<textarea class="${gr?'g':'t'}${mn}" data-i="${i}" spellcheck="${!gr}" placeholder="${i?'':gr?'Один символ — одна клетка':'Пишите здесь…'}">${esc(p.tx)}</textarea>`;
+  if(p.k==='p')return `<div class="pw"><img src="${p.src}" data-a="vimg"><button data-a="dpt" data-id="${i}">✕</button></div>`;
+  if(p.k==='q')return `<div class="qw" style="grid-template-columns:repeat(${Math.min(p.srcs.length,3)},1fr)">${p.srcs.map((u,j)=>`<div class="qi"><img src="${u}" data-a="vimg"><button data-a="dph" data-id="${i}_${j}">✕</button></div>`).join('')}</div>`;
+  const hd=`<div class="fh"><span>${p.k==='m'?'Нотный стан':'Клетки'}</span><button data-a="dpt" data-id="${i}">✕</button></div>`;
+  return `<div class="fr" data-fi="${i}">${hd}${p.k==='g'?sy+`<textarea class="g mn" data-i="${i}" spellcheck="false">${esc(p.tx)}</textarea>`:ed(p)}</div>`}).join('')}
+const _ed=ed;ed=function(s){if(s.pt)return parts(s);return _ed(s).replace('<div id="ms">',selBar(s)+'<div id="ms"'+(SEL&&SEL.o===s?' class="dr"':'')+'>')};
+document.addEventListener('change',e=>{const t=e.target,k=t.dataset&&t.dataset.k;if(!k||FI==null)return;e.stopImmediatePropagation();const s=CUR();if(k==='clef')s.clef=t.value;else s.key=+t.value;MSC().innerHTML=musicSvg(s);save()},true);
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id,s=SEL&&SEL.o,o=s&&SEL.t==='nt'?s.nt[SEL.i]:null,mg=(sh,i)=>{const t=sh.pt[i-1],u=sh.pt[i+1];sh.pt.splice(i-1,3,{k:'t',tx:t.tx+(t.tx&&u.tx?'\n':'')+u.tx})};
+ const A2={lbe(){editLb()},xdel(){if(SEL.t==='lb')s.lb.splice(SEL.i,1);else s.nt.splice(SEL.i,1);SEL=null;save();render()},
+  sdu(){o.sd='u';save();render()},sdd(){o.sd='d';save();render()},sda(){delete o.sd;save();render()},slp(){o.sl=Math.min(60,(o.sl||30)+6);save();render()},slm(){o.sl=Math.max(12,(o.sl||30)-6);save();render()},
+  stv(){CUR().ns++;save();render()},
+  ins(){const sh=SH();let i=L&&sh.pt[L.i]&&sh.pt[L.i].k==='t'?L.i:-1;if(i<0){i=sh.pt.length-1;while(sh.pt[i].k!=='t')i--}const t=sh.pt[i],p=L&&L.i===i?Math.min(L.p,t.tx.length):t.tx.length;sh.pt.splice(i,1,{k:'t',tx:t.tx.slice(0,p)},id==='m'?{k:'m',ns:2,nt:[],lb:[],sg:[]}:{k:'g',tx:''},{k:'t',tx:t.tx.slice(p)});L=null;save();render()},
+  dph(){const sh=SH(),[i,j]=id.split('_').map(Number),q=sh.pt[i];if(q.srcs.length>1)q.srcs.splice(j,1);else mg(sh,i);save();render()}};
+ if(!A2[a])return;e.stopImmediatePropagation();A2[a]()},true);
+$('#fi').onchange=async e=>{const s=SH(),l=L,fs=[...e.target.files];L=null;e.target.value='';const ds=[];for(const f of fs){const d=await ph(f);if(d)ds.push(d)}if(!ds.length)return;
+ if(s.pt){let i=l&&s.pt[l.i]&&s.pt[l.i].k==='t'?l.i:-1;if(i<0){i=s.pt.length-1;while(s.pt[i].k!=='t')i--}const t=s.pt[i],p=l&&l.i===i?Math.min(l.p,t.tx.length):t.tx.length;s.pt.splice(i,1,{k:'t',tx:t.tx.slice(0,p)},{k:'q',srcs:ds},{k:'t',tx:t.tx.slice(p)})}else ds.forEach(d=>s.ph.push(d));save();render()};
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="rf" accept=".json,application/json" hidden>');
+const _r2=render;render=function(){_r2();if(V.scr==='subs')$('#app').insertAdjacentHTML('beforeend','<div class="c"><b>Резервная копия</b><div class="mu">Сохраните все предметы, конспекты и фото в файл, чтобы не потерять их при смене ссылки, браузера или телефона.</div><div class="br" style="justify-content:flex-start"><button class="b" data-a="bk">Сохранить копию</button><button class="b" data-a="rs">Загрузить копию</button></div></div>')};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;if(a!=='bk'&&a!=='rs')return;e.stopImmediatePropagation();
+ if(a==='bk'){const u=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'})),l=document.createElement('a');l.href=u;l.download='tetrad-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+ else $('#rf').click()},true);
+$('#rf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.subs))throw 0;dlg('Загрузить копию?',{msg:'Текущие записи на этом устройстве будут заменены данными из файла.',ok:'Заменить',dn:1},()=>{S=d;V={scr:'subs',tab:'lec'};save();render()})}catch(_){dlg('Не удалось прочитать файл',{msg:'Выберите файл копии, сохранённый из «Тетради».',ok:'Понятно'},null)}};
+load();
+</script></body></html>
