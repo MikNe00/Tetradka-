@@ -532,5 +532,33 @@ document.querySelector('#cloudSignup').onclick = () => cloudLogin(true);
     console.error(e);
   }
 })();
+ 
+const cloudLogoutBtn = document.createElement('button');
+cloudLogoutBtn.className = 'b';
+cloudLogoutBtn.textContent = 'Выйти из аккаунта';
+cloudLogoutBtn.style.cssText = 'position:fixed;right:10px;top:112px;z-index:29;display:none';
+document.body.appendChild(cloudLogoutBtn);
+
+cloud.auth.onAuthStateChange((event, session) => {
+  cloudLogoutBtn.style.display = session ? 'block' : 'none';
+});
+
+cloudLogoutBtn.onclick = async () => {
+  if (!confirm('Выйти из аккаунта? Данные на устройстве останутся.')) return;
+
+  const { error } = await cloud.auth.signOut();
+
+  if (error) {
+    alert('Не удалось выйти: ' + error.message);
+    return;
+  }
+
+  cloudUser = null;
+  cloudReady = false;
+  cloudMessage('Вы вышли из аккаунта');
+  cloudOpen.textContent = 'Войти';
+  cloudLogoutBtn.style.display = 'none';
+};
+
  load();
 </script></body></html>
