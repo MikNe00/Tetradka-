@@ -333,5 +333,204 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  bnsv(){$('#bn').hidden=true;shf()},bnx(){$('#bn').hidden=true;LF=Date.now()}};
  if(!A4[a])return;e.stopImmediatePropagation();A4[a]()},true);
 if(location.protocol==='file:')setTimeout(()=>bn('Вы открыли файл напрямую: записи и «Поделиться» могут не работать. Откройте ссылку на сайт в Safari.',''),1200);
-load();
+// === SUPABASE: вход и облачная тетрадь ===
+const cloud = window.supabase.createClient(
+  'https://czwletgczktcyknuujtl.supabase.co',
+  'sb_publishable_lJMJw41oKb6x4pnc6tEI0A_DfRE8-n5'
+);
+
+let cloudUser = null;
+let cloudReady = false;
+let cloudTimer = null;
+
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="cloudBar" style="position:fixed;right:10px;top:70px;z-index:28;background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:8px;max-width:90vw">
+    <span id="cloudStatus" style="font-size:12px">Облако: не подключено</span>
+    <button class="b" id="cloudOpen" style="padding:6px 10px">Войти</button>
+  </div>
+  <div id="cloudModal" hidden style="position:fixed;inset:0;background:#0009;z-index:50;align-items:center;justify-content:center;padding:16px">
+    <div style="background:var(--card);color:var(--tx);border-radius:16px;padding:20px;width:100%;max-width:400px">
+      <h3 id="cloudTitle">Вход в «Тетрадку»</h3>
+      <p class="mu">Введи электронную почту и пароль.</p>
+      <form id="cloudForm">
+        <input id="cloudEmail" type="email" class="fi" placeholder="Электронная почта" required autocomplete="email">
+        <input id="cloudPassword" type="password" class="fi" placeholder="Пароль (не менее 6 символов)" required minlength="6" autocomplete="current-password">
+        <p id="cloudError" class="mu"></p>
+        <button class="b p" type="submit" style="width:100%">Войти</button>
+        <button class="b" type="button" id="cloudSignup" style="width:100%;margin-top:8px">Создать аккаунт</button>
+        <button class="b" type="button" id="cloudClose" style="width:100%;margin-top:8px">Закрыть</button>
+      </form>
+    </div>
+  </div>
+`);
+
+const cloudModal = document.querySelector('#cloudModal');
+const cloudStatus = document.querySelector('#cloudStatus');
+const cloudOpen = document.querySelector('#cloudOpen');
+
+function cloudMessage(text) {
+  cloudStatus.textContent = text;
+}
+
+function cloudShowError(text) {
+  document.querySelector('#cloudError').textContent = text;
+}
+
+function cloudOpenForm() {
+  cloudShowError('');
+  cloudModal.hidden = false;
+  cloudModal.style.display = 'flex';
+}
+
+function cloudCloseForm() {
+  cloudModal.hidden = true;
+  cloudModal.style.display = 'none';
+}
+
+cloudOpen.onclick = () => {
+  if (!cloudUser) {
+    cloudOpenForm();
+  } else {
+    cloudMessage('Аккаунт: ' + cloudUser.email);
+  }
+};
+
+document.querySelector('#cloudClose').onclick = cloudCloseForm;
+
+async function cloudSync(user) {
+  cloudReady = false;
+  cloudMessage('Синхронизация…');
+
+  try {
+    const { data, error } = await cloud
+      .from('notebooks')
+      .select('data')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (data && data.data) {
+      const localHasData =
+        (S.subs || []).length > 0 ||
+        (S.sch || []).length > 0 ||
+        (S.trash || []).length > 0;
+
+      if (!localHasData) {
+        S = JSON.parse(data.data);
+      } else {
+        const useCloud = confirm(
+          'В облаке уже есть тетрадка. ' +
+          'ОК — загрузить облачную версию на это устройство. ' +
+          'Отмена — оставить текущую тетрадку и отправить её в облако.'
+        );
+
+        if (useCloud) {
+          S = JSON.parse(data.data);
+        }
+      }
+
+      await kv('w', 's', S);
+      DIRTY = 0;
+      IDX = null;
+      render();
+    }
+
+    cloudUser = user;
+    cloudReady = true;
+    cloudMessage('Облако подключено');
+    cloudOpen.textContent = 'Аккаунт';
+  } catch (e) {
+    cloudMessage('Ошибка синхронизации');
+    console.error('Cloud sync:', e);
+    alert('Не удалось синхронизировать тетрадку. Проверь подключение и настройки Supabase.');
+  }
+
+  if (cloudReady && (!dataExists())) {
+    // Пустая новая тетрадка будет отправлена при первом изменении.
+  }
+}
+
+function dataExists() {
+  return (S.subs || []).length > 0 ||
+    (S.sch || []).length > 0 ||
+    (S.trash || []).length > 0;
+}
+
+async function cloudUpload() {
+  if (!cloudUser || !cloudReady || !db) return;
+
+  try {
+    const { error } = await cloud
+      .from('notebooks')
+      .upsert({
+        user_id: cloudUser.id,
+        data: JSON.stringify(S),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (error) throw error;
+    cloudMessage('Сохранено в облако');
+  } catch (e) {
+    cloudMessage('Ошибка облачного сохранения');
+    console.error('Cloud save:', e);
+  }
+}
+
+const previousSaveCloud = save;
+save = function() {
+  previousSaveCloud();
+
+  if (cloudUser && cloudReady) {
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(cloudUpload, 1500);
+  }
+};
+
+async function cloudLogin(signUp) {
+  const email = document.querySelector('#cloudEmail').value.trim();
+  const password = document.querySelector('#cloudPassword').value;
+
+  cloudShowError('Подключаемся…');
+
+  const result = signUp
+    ? await cloud.auth.signUp({ email, password })
+    : await cloud.auth.signInWithPassword({ email, password });
+
+  if (result.error) {
+    cloudShowError(result.error.message);
+    return;
+  }
+
+  if (result.data.session) {
+    cloudCloseForm();
+    await cloudSync(result.data.user);
+  } else if (signUp) {
+    cloudShowError('Проверь почту и подтверди регистрацию, затем войди.');
+  }
+}
+
+document.querySelector('#cloudForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  await cloudLogin(false);
+});
+
+document.querySelector('#cloudSignup').onclick = () => cloudLogin(true);
+
+(async function cloudStart() {
+  try {
+    const { data, error } = await cloud.auth.getSession();
+    if (error) throw error;
+
+    if (data.session) {
+      await cloudSync(data.session.user);
+    } else {
+      cloudMessage('Работа офлайн');
+    }
+  } catch (e) {
+    cloudMessage('Облако недоступно');
+    console.error(e);
+  }
+})();
+ load();
 </script></body></html>
