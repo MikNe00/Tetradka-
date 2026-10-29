@@ -87,7 +87,9 @@ button{transition:transform .12s,background-color .2s,opacity .2s}button:active{
 .sgt{fill:none;stroke:currentColor;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
 #dw{position:fixed;inset:0;background:#000b;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}#dw[hidden]{display:none}
 #dc{background:var(--card);border-radius:14px;touch-action:none;width:min(86vw,300px);height:min(86vw,300px)}
-</style></head><body>
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head><body>
 <header id="hd"></header><main id="app"></main>
 <button class="fab" id="fab">+</button><div id="dlg" hidden></div><div id="vw" hidden></div>
 <input type="file" id="fi" accept="image/*" multiple hidden>
