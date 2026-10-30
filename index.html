@@ -91,6 +91,8 @@ button{transition:transform .12s,background-color .2s,opacity .2s}button:active{
 .wide{width:100%;margin-top:8px}.ghost{border-color:transparent;color:var(--mu)}
 .pwr{position:relative}.pwr .fi{padding-right:50px}.pwr button{position:absolute;right:2px;top:2px;border:0;background:none;font-size:18px;min-width:46px;min-height:46px}
 .aer{min-height:22px;font-size:14px;color:#c0392b;margin:4px 2px}.aer.ok{color:var(--ac)}
+.md{padding:14px;font:17px/1.55 -apple-system,system-ui,sans-serif}.md h3{margin:12px 0 4px;font-size:20px}.md p{margin:6px 0}.md ul{margin:6px 0;padding-left:22px}
+.dots{display:flex;gap:6px;justify-content:center;margin:14px 0}.dots i{width:8px;height:8px;border-radius:50%;background:var(--ln)}.dots i.on{background:var(--ac)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -107,27 +109,6 @@ function idb(){return new Promise((ok,no)=>{try{const r=indexedDB.open('tetrad',
 async function load(){try{db=await idb();const v=await new Promise(ok=>{const q=db.transaction('kv').objectStore('kv').get('s');q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)});if(v)S=v}catch(e){}render()}
 function save(){clearTimeout(tm);tm=setTimeout(()=>{try{db&&db.transaction('kv','readwrite').objectStore('kv').put(S,'s')}catch(e){}},400)}
 const sub=()=>S.subs.find(x=>x.id===V.sid),H=()=>sub().hw.find(x=>x.id===V.id),SH=()=>V.scr==='lec'?sub().lec.find(x=>x.id===V.id):H().sh;
-function musicSvg(s){const n=s.ns;let g='';
- for(let i=0;i<n;i++){const y=30+i*95;for(let k=0;k<5;k++)g+=`<line x1="8" x2="332" y1="${y+k*10}" y2="${y+k*10}"/>`;
-  g+=`<line x1="8" x2="8" y1="${y}" y2="${y+40}"/><line x1="332" x2="332" y1="${y}" y2="${y+40}"/><text class="cl" x="12" y="${y+36}">𝄞</text>`}
- s.nt.forEach(o=>{const y=30+o.s*95,cx=o.x,cy=y+40-o.p*5,up=o.p<4,sx=up?cx+5.2:cx-5.2;
-  for(let q=-2;q>=o.p;q-=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
-  for(let q=10;q<=o.p;q+=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
-  g+=`<ellipse cx="${cx}" cy="${cy}" rx="5.6" ry="4.2" transform="rotate(-20 ${cx} ${cy})" class="${o.d>=4?'f':'o'}"/>`;
-  if(o.d>=2)g+=`<line class="st" x1="${sx}" x2="${sx}" y1="${cy}" y2="${up?cy-30:cy+30}"/>`;
-  if(o.d===8)g+=up?`<path class="st" d="M${sx} ${cy-30}q9 6 5 17"/>`:`<path class="st" d="M${sx} ${cy+30}q9 -6 5 -17"/>`;
-  if(o.a)g+=`<text x="${cx-17}" y="${cy+5}">${o.a}</text>`});
- return `<svg class="ms" viewBox="0 0 340 ${30+n*95}">${g}</svg>`}
-function tapMs(e,sv){const r=sv.getBoundingClientRect(),k=340/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k,s=SH();
- const i=Math.max(0,Math.min(s.ns-1,Math.round((y-50)/95))),p=Math.max(-4,Math.min(12,Math.round((70+i*95-y)/5))),nx=Math.max(44,Math.min(324,Math.round(x/10)*10));
- if(T.er){const j=s.nt.findIndex(o=>o.s===i&&Math.abs(o.x-x)<10&&Math.abs(o.p-p)<=1);if(j>=0)s.nt.splice(j,1)}
- else{s.nt=s.nt.filter(o=>!(o.s===i&&o.x===nx&&o.p===p));s.nt.push({s:i,x:nx,p,d:T.dur,a:T.acc})}
- $('#ms').innerHTML=musicSvg(s);save()}
-function ed(s){
- if(s.ty==='text')return `<textarea class="t" data-f="tx" placeholder="Пишите здесь…">${esc(s.tx)}</textarea>`;
- if(s.ty==='grid')return `<div class="sy">${SY.map(c=>`<button data-a="sym" data-id="${c}">${c}</button>`).join('')}</div><textarea class="g" data-f="tx" spellcheck="false" placeholder="Один символ — одна клетка">${esc(s.tx)}</textarea>`;
- const b=(a,v,l,on)=>`<button class="${on?'on':''}" data-a="${a}" data-id="${v}">${l}</button>`;
- return `<div class="tb">${[[1,'Целая'],[2,'1/2'],[4,'1/4'],[8,'1/8']].map(d=>b('dur',d[0],d[1],T.dur==d[0])).join('')}</div><div class="tb">${b('acc','','без знака',!T.acc)}${b('acc','♯','♯',T.acc==='♯')}${b('acc','♭','♭',T.acc==='♭')}${b('er','',' Ластик',T.er)}${b('stv','','＋ стан',0)}</div><div id="ms">${musicSvg(s)}</div>`}
 function render(){const sb=sub();let h='',t='Тетрадь',fab=1;
  if(V.scr==='subs')h=S.subs.length?S.subs.map(s=>`<div class="c row" data-a="open" data-id="${s.id}"><div><b>${esc(s.name)}</b><div class="mu">Лекций: ${s.lec.length} · Заданий: ${s.hw.length}</div></div><button class="x" data-a="delsub" data-id="${s.id}">✕</button></div>`).join(''):'<p class="mu empty">Добавьте первый предмет кнопкой «＋»</p>';
  else if(V.scr==='sub'){t=sb.name;const L=V.tab==='lec',li=L?sb.lec:sb.hw;
@@ -138,7 +119,6 @@ function render(){const sb=sub();let h='',t='Тетрадь',fab=1;
   h=`<input class="ti" data-o="h" data-f="title" value="${esc(o.title)}"><label class="chk"><input type="checkbox" data-o="h" data-f="done" ${o.done?'checked':''}> Выполнено</label><h2>Задание</h2><textarea class="sm" data-o="h" data-f="task" placeholder="Что нужно сделать">${esc(o.task)}</textarea><h2>Пояснение</h2><textarea class="sm" data-o="h" data-f="expl" placeholder="Пояснение, советы, ссылки">${esc(o.expl)}</textarea><h2>Выполненное задание</h2>`+ed(o.sh)}
  $('#hd').innerHTML=(V.scr==='subs'?'':'<button class="ic" data-a="back">‹</button>')+`<h1>${esc(t)}</h1>`;
  $('#app').innerHTML=h;$('#fab').style.display=fab?'':'none';fit()}
-function fit(el){(el?[el]:document.querySelectorAll('textarea')).forEach(t=>{t.style.height='auto';t.style.height=Math.max(t.scrollHeight,t.classList.contains('sm')?90:360)+'px'})}
 function dlg(t,o,cb){const d=$('#dlg');DCB=cb;
  d.innerHTML=`<div class="dc"><h3>${t}</h3>${o.msg?`<div class="mu">${o.msg}</div>`:''}${o.inp?`<input id="di" type="text" placeholder="${o.inp}" value="${esc(o.val||'')}" maxlength="80">`:''}${o.ty?`<div class="ty">${Object.keys(TY).map((k,i)=>`<label><input type="radio" name="ty" value="${k}" ${i?'':'checked'}><span>${TY[k]}</span></label>`).join('')}</div>`:''}<div class="br"><button class="b" data-a="dx">Отмена</button><button class="b p${o.dn?' dn':''}" data-a="dok">${o.ok||'Готово'}</button></div></div>`;
  d.hidden=false;if(o.inp)setTimeout(()=>$('#di').focus(),60)}
@@ -176,22 +156,6 @@ const CG={g:['𝄞',2],f:['𝄢',6],a:['𝄡',4],t:['𝄡',6],s:['𝄡',0],m:['�
 const CL=[['g','Скрипичный'],['f','Басовый'],['a','Альтовый'],['t','Теноровый'],['s','Сопрановый'],['m','Меццо-сопрановый'],['b','Баритоновый']];
 const SM=['Соль','Ре','Ля','Ми','Си','Фа♯','До♯'],Sm=['ми','си','фа♯','до♯','соль♯','ре♯','ля♯'],FM=['Фа','Си♭','Ми♭','Ля♭','Ре♭','Соль♭','До♭'],Fm=['ре','соль','до','фа','си♭','ми♭','ля♭'];
 const KS=[[0,'Без знаков — До мажор / ля минор']];for(let i=1;i<=7;i++)KS.push([i,'♯'.repeat(i)+' — '+SM[i-1]+' мажор / '+Sm[i-1]+' минор']);for(let i=1;i<=7;i++)KS.push([-i,'♭'.repeat(i)+' — '+FM[i-1]+' мажор / '+Fm[i-1]+' минор']);
-function musicSvg(s){const n=s.ns,cl=s.clef||'g',c=CG[cl],k=s.key||0;let g='';
- for(let i=0;i<n;i++){const y=30+i*95;for(let j=0;j<5;j++)g+=`<line x1="8" x2="332" y1="${y+j*10}" y2="${y+j*10}"/>`;
-  g+=`<line x1="8" x2="8" y1="${y}" y2="${y+40}"/><line x1="332" x2="332" y1="${y}" y2="${y+40}"/><text class="cl" x="10" y="${y+46-c[1]*5}">${c[0]}</text>`;
-  for(let j=0;j<Math.abs(k);j++){let q=(k>0?SP:FP)[j]+KSH[cl];while(q>9)q-=7;while(q<-1)q+=7;g+=`<text x="${40+j*8}" y="${y+45-q*5}">${k>0?'♯':'♭'}</text>`}}
- s.nt.forEach(o=>{const y=30+o.s*95,cx=o.x;
-  if(o.r){g+=o.d===1?`<rect class="f" x="${cx-6}" y="${y+10}" width="12" height="5"/>`:o.d===2?`<rect class="f" x="${cx-6}" y="${y+15}" width="12" height="5"/>`:o.d===4?`<path class="st" d="M${cx-3} ${y+8}l6 8l-6 7l6 8"/>`:`<path class="st" d="M${cx+3} ${y+13}l-5 14"/><circle class="f" cx="${cx-1}" cy="${y+14}" r="2.2"/>`;return}
-  const cy=y+40-o.p*5,up=o.p<4,sx=up?cx+5.2:cx-5.2;
-  for(let q=-2;q>=o.p;q-=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
-  for(let q=10;q<=o.p;q+=2)g+=`<line x1="${cx-9}" x2="${cx+9}" y1="${y+40-q*5}" y2="${y+40-q*5}"/>`;
-  g+=`<ellipse cx="${cx}" cy="${cy}" rx="5.6" ry="4.2" transform="rotate(-20 ${cx} ${cy})" class="${o.d>=4?'f':'o'}"/>`;
-  if(o.d>=2)g+=`<line class="st" x1="${sx}" x2="${sx}" y1="${cy}" y2="${up?cy-30:cy+30}"/>`;
-  if(o.d===8)g+=up?`<path class="st" d="M${sx} ${cy-30}q9 6 5 17"/>`:`<path class="st" d="M${sx} ${cy+30}q9 -6 5 -17"/>`;
-  if(o.a)g+=`<text x="${cx-17}" y="${cy+5}">${o.a}</text>`});
- (s.lb||[]).forEach(a=>g+=`<text class="lb" x="${a.x}" y="${a.y}">${esc(a.t)}</text>`);
- (s.sg||[]).forEach(a=>g+=`<path class="sg" d="${a.d}" transform="translate(${a.x-13} ${a.y-13}) scale(.26)"/>`);
- return `<svg class="ms" viewBox="0 0 340 ${30+n*95}">${g}</svg>`}
 function tapMs(e,sv){const r=sv.getBoundingClientRect(),k=340/r.width,x=(e.clientX-r.left)*k,y=(e.clientY-r.top)*k,s=CUR();s.lb=s.lb||[];s.sg=s.sg||[];
  const i=Math.max(0,Math.min(s.ns-1,Math.round((y-50)/95))),p=Math.max(-4,Math.min(12,Math.round((70+i*95-y)/5))),nx=Math.max(Math.ceil((44+Math.abs(s.key||0)*8)/10)*10,Math.min(324,Math.round(x/10)*10)),cn=MSC(),up=()=>{cn.innerHTML=musicSvg(s);save()};
  if(T.m==='e'){const a=s.lb.findIndex(a=>Math.abs(a.x-x)<22&&Math.abs(a.y-y)<10),b=s.sg.findIndex(a=>Math.abs(a.x-x)<14&&Math.abs(a.y-y)<14);
@@ -347,22 +311,41 @@ const hasData=()=>(S.subs||[]).length>0||(S.sch||[]).length>0||(S.trash||[]).len
 async function walk(o,f){if(Array.isArray(o)){for(let i=0;i<o.length;i++)o[i]=await walk(o[i],f);return o}if(o&&typeof o==='object'){for(const k in o)o[k]=await walk(o[k],f);return o}return typeof o==='string'?await f(o):o}
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 const shrink=d=>new Promise(ok=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1000/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(ok,'image/jpeg',.6)};i.onerror=()=>ok(null);i.src=d});
-async function upPhoto(d){if(!d.startsWith('data:image'))return d;const h=await sha(d),p=ALI[h]||CU.id+'/'+h+'.jpg';if(!UPD.has(p)){const b=await shrink(d),r=b?await cloud.storage.from('photos').upload(p,b,{contentType:'image/jpeg',upsert:true}):{error:1};if(r.error){PHE=1;return 'sb:none'}UPD.add(p);keepUp()}return 'sb:'+p}
+const QUOTA=30*1048576;let USED=0,QE=0,REFS=new Set();
+async function upPhoto(d){if(d.startsWith('sb:')&&d!=='sb:none')REFS.add(d.slice(3));if(!d.startsWith('data:image'))return d;const h=await sha(d),p=ALI[h]||CU.id+'/'+h+'.jpg';if(!UPD.has(p)){const b=await shrink(d);if(!b){PHE=1;return 'sb:none'}if(USED+b.size>QUOTA){QE=1;return 'sb:none'}const r=await cloud.storage.from('photos').upload(p,b,{contentType:'image/jpeg',upsert:true});if(r.error){PHE=1;return 'sb:none'}USED+=b.size;UPD.add(p);keepUp()}REFS.add(p);return 'sb:'+p}
 async function dnPhoto(s){if(!s.startsWith('sb:')||s==='sb:none')return s;const p=s.slice(3),{data,error}=await cloud.storage.from('photos').download(p);if(error||!data)return s;const d=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(data)});ALI[await sha(d)]=p;UPD.add(p);keepUp();return d}
 async function gz(s){try{const u=new Uint8Array(await new Response(new Blob([s]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());let b='';for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return 'gz:'+btoa(b)}catch(_){return s}}
 async function ungz(s){if(typeof s!=='string'||!s.startsWith('gz:'))return s;const b=atob(s.slice(3)),u=Uint8Array.from(b,c=>c.charCodeAt(0));return await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}
-async function cloudPush(){if(!cloud||!CU||!CR||CB)return;CB=1;CP=0;CE=0;PHE=0;setSt('Сохранение…');
- try{const c=JSON.parse(JSON.stringify(S));await walk(c,upPhoto);const t=new Date().toISOString(),{error}=await cloud.from('notebooks').upsert({user_id:CU.id,data:await gz(JSON.stringify(c)),updated_at:t},{onConflict:'user_id'});if(error)throw error;S.cfg=S.cfg||{};S.cfg.syn=t;kv('w','s',S);setSt(PHE?'Сохранено, но фото не отправлены (нет хранилища photos)':'Синхронизировано · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}))}
+async function photoUsage(){try{const {data}=await cloud.storage.from('photos').list(CU.id,{limit:1000}),l=data||[];USED=l.reduce((s,f)=>s+((f.metadata&&f.metadata.size)||0),0);return l}catch(_){return []}}
+async function cleanup(){const t=Date.now();if(t-((S.cfg&&S.cfg.cl)||0)<216e5)return;const fl=await photoUsage(),keep=new Set([...REFS].map(p=>p.split('/')[1])),old=fl.filter(f=>f.name&&!keep.has(f.name)&&t-Date.parse(f.created_at||f.updated_at||t)>864e5).map(f=>CU.id+'/'+f.name);if(old.length){await cloud.storage.from('photos').remove(old);old.forEach(p=>UPD.delete(p));keepUp()}S.cfg=S.cfg||{};S.cfg.cl=t;kv('w','s',S)}
+async function cloudPush(){if(!cloud||!CU||!CR||CB)return;CB=1;CP=0;CE=0;PHE=0;QE=0;REFS=new Set();setSt('Сохранение…');
+ try{const c=JSON.parse(JSON.stringify(S));await walk(c,upPhoto);const t=new Date().toISOString(),{error}=await cloud.from('notebooks').upsert({user_id:CU.id,data:await gz(JSON.stringify(c)),updated_at:t},{onConflict:'user_id'});if(error)throw error;S.cfg=S.cfg||{};S.cfg.syn=t;kv('w','s',S);
+  setSt(QE?'Сохранено, но лимит фото в облаке (30 МБ) достигнут':PHE?'Сохранено, но часть фото не отправлена':'Синхронизировано · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+  if(!PHE&&!QE)cleanup().catch(()=>{})}
  catch(e){CP=1;CE=1;setSt('Нет связи — отправим позже');console.error(e)}
  CB=0;if(CP&&!CE)setTimeout(cloudPush,1500)}
+const ids=()=>{const s=new Set();(S.subs||[]).forEach(x=>{s.add(x.id);x.lec.concat(x.hw).forEach(y=>s.add(y.id))});(S.sch||[]).forEach(x=>s.add(x.id));return s};
+let PREV=new Set(),PS=new Set();
+function touch(){const n=Date.now(),cur=ids();(S.subs||[]).forEach(x=>{if(!PREV.has(x.id))x.mt=n;x.lec.concat(x.hw).forEach(y=>{if(!PREV.has(y.id))y.mt=n})});(S.sch||[]).forEach(x=>{if(!PREV.has(x.id))x.mt=n});
+ const cs=new Set((S.sch||[]).map(x=>x.id));PS.forEach(id=>{if(!cs.has(id))(S.gone=S.gone||[]).push({id,at:n})});PS=cs;
+ try{if(V.scr==='lec'||V.scr==='hw'){const s=sub(),it=V.scr==='lec'?SH():H();it.mt=n;s.mt=n}else if(V.scr==='sub')sub().mt=n;else if(ST==='sch')(S.sch||[]).forEach(x=>x.mt=n)}catch(_){}PREV=cur}
+function mergeState(L,R){const pr=[],tr=new Map(),gn=new Map();
+ [...(L.trash||[]),...(R.trash||[])].forEach(t=>{const o=tr.get(t.id);if(!o||t.at>o.at)tr.set(t.id,t)});
+ [...(L.gone||[]),...(R.gone||[])].forEach(g=>gn.set(g.id,Math.max(gn.get(g.id)||0,g.at)));
+ const dead=x=>{const a=(tr.get(x.id)||{}).at||gn.get(x.id)||0;return a&&a>=(x.mt||0)};
+ const um=(la,ra)=>{const m=new Map();(la||[]).forEach(x=>m.set(x.id,x));(ra||[]).forEach(x=>{const l=m.get(x.id);if(!l||(x.mt||0)>(l.mt||0)){m.set(x.id,x);pr.push(x)}});return[...m.values()].filter(x=>!dead(x))};
+ const sm=new Map();(L.subs||[]).forEach(s=>sm.set(s.id,s));
+ (R.subs||[]).forEach(s=>{const l=sm.get(s.id);if(!l){sm.set(s.id,s);s.lec.concat(s.hw).forEach(x=>pr.push(x))}else{const w=(s.mt||0)>(l.mt||0)?s:l;sm.set(s.id,{...w,lec:um(l.lec,s.lec),hw:um(l.hw,s.hw)})}});
+ const subs=[...sm.values()].filter(s=>!dead(s)).map(s=>({...s,lec:s.lec.filter(x=>!dead(x)),hw:s.hw.filter(x=>!dead(x))})),lv=new Map();
+ subs.forEach(s=>{lv.set(s.id,s.mt||0);s.lec.concat(s.hw).forEach(x=>lv.set(x.id,x.mt||0))});
+ return{pr,M:{...L,subs,sch:um(L.sch,R.sch),stamps:um(L.stamps,R.stamps),trash:[...tr.values()].filter(t=>Date.now()-t.at<12096e5&&!((lv.get(t.id)||0)>t.at)),gone:[...gn].map(([id,at])=>({id,at}))}}}
+async function applyRemote(row){const raw=await ungz(row.data),R=typeof raw==='string'?JSON.parse(raw):raw,{M,pr}=mergeState(S,R);for(const x of pr)await walk(x,dnPhoto);M.cfg=Object.assign({},S.cfg,{syn:row.updated_at,skip:true});S=M;await kv('w','s',S);IDX=null;PREV=ids();PS=new Set((S.sch||[]).map(x=>x.id));
+ try{if(V.scr==='lec')SH().id;else if(V.scr==='hw')H().id;else if(V.scr==='sub')sub().id}catch(_){V={scr:'subs',tab:'lec'}}render()}
 async function cloudSync(u){CU=u;CR=false;setSt('Синхронизация…');render();
- try{const {data,error}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',u.id).maybeSingle();if(error)throw error;const syn=S.cfg&&S.cfg.syn;
-  if(data&&data.data){const take=async()=>{setSt('Загрузка из облака…');const raw=await ungz(data.data),o=typeof raw==='string'?JSON.parse(raw):raw;await walk(o,dnPhoto);o.cfg=o.cfg||{};o.cfg.syn=data.updated_at;o.cfg.skip=true;S=o;await kv('w','s',S);IDX=null;render()};
-   if(!hasData())await take();else if(syn&&Date.parse(data.updated_at)<=Date.parse(syn))CP=1;else{CF=take;return askConflict()}}
-  else if(hasData())CP=1;
-  CR=true;setSt(CP?'Отправка…':'Синхронизировано');render();if(CP)cloudPush()}
+ try{await photoUsage();const {data,error}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',u.id).maybeSingle();if(error)throw error;if(data&&data.data)await applyRemote(data);CR=true;CP=1;render();await cloudPush()}
  catch(e){setSt('Нет связи с облаком');console.error(e)}}
-function askConflict(){const d=$('#dlg');d.innerHTML='<div class="dc"><h3>Найдена тетрадь в облаке</h3><div class="mu">На этом устройстве тоже есть записи. Какую версию оставить?</div><div class="br" style="flex-direction:column"><button class="b p wide" data-a="clu">Взять из облака</button><button class="b wide" data-a="clk">Оставить с этого устройства</button></div></div>';d.hidden=false}
+async function pullNow(){if(!cloud||!CU||!CR||CB)return;const ae=document.activeElement;if((ae&&/TEXTAREA|INPUT|SELECT/.test(ae.tagName))||!$('#dlg').hidden)return;
+ try{const syn=S.cfg&&S.cfg.syn,{data:h}=await cloud.from('notebooks').select('updated_at').eq('user_id',CU.id).maybeSingle();if(!h||(syn&&Date.parse(h.updated_at)<=Date.parse(syn)))return;const {data}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',CU.id).maybeSingle();if(!data)return;CB=1;try{await applyRemote(data)}finally{CB=0}CP=1;await cloudPush()}catch(e){console.error(e)}}
 const ruErr=m=>/invalid login/i.test(m)?'Неверная почта или пароль':/already registered/i.test(m)?'Такой аккаунт уже есть — выберите «Вход»':/not confirmed/i.test(m)?'Подтвердите почту по письму, затем войдите':/rate limit/i.test(m)?'Слишком много попыток, попробуйте позже':/password/i.test(m)?'Пароль слишком простой или короткий':/fetch|network/i.test(m)?'Нет связи с интернетом':m;
 const authErr=(t,ok)=>{const e=$('#aer');if(e){e.textContent=t;e.className='aer'+(ok?' ok':'')}};
 async function authGo(){const e=$('#ae').value.trim(),p=$('#ap').value,up=CMODE==='up',b=$('#abtn');if(!e||p.length<6){authErr('Введите почту и пароль не короче 6 символов');return}
@@ -372,10 +355,10 @@ async function authGo(){const e=$('#ae').value.trim(),p=$('#ap').value,up=CMODE=
   if(r.data.session){$('#dlg').hidden=true;await cloudSync(r.data.user)}else authErr('Мы отправили письмо. Подтвердите почту, затем войдите.',1)}
  catch(x){authErr('Нет связи с интернетом')}
  finally{const b2=$('#abtn');if(b2){b2.disabled=false;b2.textContent=up?'Создать аккаунт':'Войти'}}}
-function accUI(w){const d=$('#dlg'),m=CMODE;let h;
+function accUI(w){if(TOUR&&w)return;const d=$('#dlg'),m=CMODE;let h;
  if(!cloud)h='<div class="dc"><h3>Облако недоступно</h3><div class="mu">Не удалось подключить облако. Приложение работает без аккаунта. Проверьте интернет и обновите страницу.</div><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>';
  else if(CU)h=`<div class="dc"><div class="av">${esc((CU.email||'?')[0].toUpperCase())}</div><h3 style="text-align:center;margin:0">${esc(CU.email)}</h3><div class="mu" id="acst" style="text-align:center;margin:4px 0 8px">${esc(CS)}</div><div class="ml"><button data-a="synow">⟳ Синхронизировать сейчас</button><button data-a="lgo" style="color:#c0392b">Выйти из аккаунта</button></div><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>`;
- else h=`<div class="dc"><h3>${w?'Добро пожаловать':'Аккаунт'}</h3><div class="mu">Войдите, чтобы тетрадь хранилась в облаке и была на всех ваших устройствах.</div><div class="tabs" style="margin:12px 0"><button class="${m==='in'?'on':''}" data-a="amode" data-id="in">Вход</button><button class="${m==='up'?'on':''}" data-a="amode" data-id="up">Регистрация</button></div><form id="af"><input id="ae" class="fi" type="email" inputmode="email" placeholder="Электронная почта" autocomplete="email" value="${esc(CV.e)}"><div class="pwr"><input id="ap" class="fi" type="password" placeholder="Пароль (не менее 6 символов)" autocomplete="${m==='in'?'current-password':'new-password'}" value="${esc(CV.p)}"><button type="button" data-a="eye">👁</button></div><div id="aer" class="aer"></div><button class="b p wide" id="abtn" type="submit">${m==='in'?'Войти':'Создать аккаунт'}</button></form><button class="b wide ghost" data-a="askip">Продолжить без аккаунта</button></div>`;
+ else h=`<div class="dc"><h3>${w?'Добро пожаловать':'Аккаунт'}</h3><div class="mu">Войдите, чтобы тетрадь хранилась в облаке и была на всех ваших устройствах.</div><div class="tabs" style="margin:12px 0"><button class="${m==='in'?'on':''}" data-a="amode" data-id="in">Вход</button><button class="${m==='up'?'on':''}" data-a="amode" data-id="up">Регистрация</button></div><form id="af"><input id="ae" class="fi" type="email" inputmode="email" placeholder="Электронная почта" autocomplete="email" value="${esc(CV.e)}"><div class="pwr"><input id="ap" class="fi" type="password" placeholder="Пароль (не менее 6 символов)" autocomplete="${m==='in'?'current-password':'new-password'}" value="${esc(CV.p)}"><button type="button" data-a="eye">👁</button></div><div id="aer" class="aer"></div><button class="b p wide" id="abtn" type="submit">${m==='in'?'Войти':'Создать аккаунт'}</button>${m==='in'?'<button type="button" class="b wide ghost" data-a="forgot">Забыли пароль?</button>':''}</form><button class="b wide ghost" data-a="askip">Продолжить без аккаунта</button></div>`;
  d.innerHTML=h;d.hidden=false}
 document.addEventListener('submit',e=>{if(e.target.id==='af'){e.preventDefault();authGo()}});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id,hd=()=>{$('#dlg').hidden=true};
@@ -385,16 +368,79 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   askip(){hd();S.cfg=S.cfg||{};S.cfg.skip=true;save()},
   synow(){CR?cloudPush():cloudSync(CU)},
   lgo(){dlg('Выйти из аккаунта?',{msg:'Записи на этом устройстве останутся.',ok:'Выйти',dn:1},async()=>{try{await cloud.auth.signOut()}catch(_){}CU=null;CR=false;CP=0;setSt('Не подключено');render()})},
-  async clu(){hd();try{await CF();CR=true;setSt('Синхронизировано')}catch(x){setSt('Не удалось загрузить из облака');console.error(x)}render()},
-  clk(){hd();CP=1;CR=true;render();cloudPush()}};
+};
  if(!A5[a])return;e.stopImmediatePropagation();A5[a]()},true);
 const _mn=menu;menu=function(){_mn();$('#dlg .ml').insertAdjacentHTML('afterbegin',`<button data-a="acc">${CU?'☁':'👤'} Аккаунт<span class="mu" style="display:block;font-size:13px">${CU?esc(CU.email):'Войти или создать аккаунт'}</span></button>`)};
-const _r5=render;render=function(){_r5();if(V.scr==='subs'){const m=$('#hd [data-a="menu"]');if(m)m.insertAdjacentHTML('beforebegin',`<button class="ic" data-a="acc" style="font-size:22px">${CU?'☁':'👤'}</button>`)}};
-const _sv3=save;save=function(){_sv3();if(CU&&CR){CP=1;clearTimeout(CT);CT=setTimeout(cloudPush,1500);setSt('Есть несохранённые изменения')}};
+const _r5=render;render=function(){_r5();if(V.scr==='subs'){const m=$('#hd [data-a="menu"]');if(m)m.insertAdjacentHTML('beforebegin',`<button class="ic" data-a="sopen" style="font-size:20px">🔍</button><button class="ic" data-a="acc" style="font-size:22px">${CU?'☁':'👤'}</button>`)}};
+const _sv3=save;save=function(){_sv3();touch();if(CU&&CR){CP=1;clearTimeout(CT);CT=setTimeout(cloudPush,1500);setSt('Есть несохранённые изменения')}};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&CP&&CU&&CR)cloudPush()});
 addEventListener('online',()=>{if(!cloud)return;if(CU){CR?cloudPush():cloudSync(CU)}else startCloud(1)});
 async function startCloud(q){if(!cloud){setSt('Облако недоступно');return}
  try{const {data}=await cloud.auth.getSession();if(data.session)await cloudSync(data.session.user);else{setSt('Не подключено');if(!q&&!(S.cfg&&S.cfg.skip))accUI(1)}}
  catch(e){setSt('Нет связи с облаком')}}
-load().then(()=>startCloud());
+let SR=[];
+const srcText=x=>[x.title,x.tx,(x.pt||[]).map(t=>t.tx||'').join(' '),x.task,x.expl,x.sh&&x.sh.tx,(x.lb||[]).map(l=>l.t).join(' ')].filter(Boolean).join(' ');
+function srchUI(){const d=$('#dlg');d.innerHTML='<div class="dc"><h3>Поиск</h3><input id="sq" class="fi" type="search" placeholder="Название или текст конспекта" autocomplete="off"><div id="sr" class="ml" style="max-height:48vh;overflow:auto"><p class="mu">Начните вводить</p></div><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>';d.hidden=false;setTimeout(()=>$('#sq').focus(),80)}
+function srchRun(q){q=q.trim().toLowerCase();const r=[];if(q)(S.subs||[]).forEach(s=>{if(s.name.toLowerCase().includes(q))r.push({s:s.id,t:'sub',n:s.name,sn:'Предмет'});[['lec',s.lec],['hw',s.hw]].forEach(([k,l])=>l.forEach(x=>{const t=srcText(x),i=t.toLowerCase().indexOf(q);if(i>=0)r.push({s:s.id,t:k,id:x.id,n:x.title,sn:s.name+(k==='lec'?' · лекция':' · задание'),x:t.slice(Math.max(0,i-20),i+50)})}))});
+ SR=r;$('#sr').innerHTML=r.length?r.slice(0,40).map((x,i)=>`<button data-a="sgo" data-id="${i}"><b>${esc(x.n)}</b><span class="mu" style="display:block;font-size:13px">${esc(x.sn)}${x.x?' · …'+esc(x.x)+'…':''}</span></button>`).join(''):`<p class="mu">${q?'Ничего не найдено':'Начните вводить'}</p>`}
+document.addEventListener('input',e=>{if(e.target.id==='sq')srchRun(e.target.value)});
+function newPwUI(){const d=$('#dlg');d.innerHTML='<div class="dc"><h3>Новый пароль</h3><div class="mu">Введите новый пароль для входа.</div><input id="np" class="fi" type="password" placeholder="Не менее 6 символов" autocomplete="new-password"><div id="aer" class="aer"></div><button class="b p wide" data-a="npw">Сохранить пароль</button></div>';d.hidden=false}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id;
+ const A6={sopen:srchUI,
+  sgo(){const r=SR[+id];if(!r)return;$('#dlg').hidden=true;V=r.t==='sub'?{scr:'sub',sid:r.s,tab:'lec'}:{scr:r.t,sid:r.s,id:r.id,tab:r.t};render();scrollTo(0,0)},
+  async forgot(){const m=$('#ae').value.trim();if(!m){authErr('Введите почту, на неё придёт письмо');return}try{const {error}=await cloud.auth.resetPasswordForEmail(m,{redirectTo:location.origin+location.pathname});authErr(error?ruErr(error.message):'Письмо для смены пароля отправлено',!error)}catch(_){authErr('Нет связи с интернетом')}},
+  async npw(){const p=$('#np').value;if(p.length<6){authErr('Не короче 6 символов');return}try{const {error}=await cloud.auth.updateUser({password:p});if(error){authErr(ruErr(error.message));return}$('#dlg').hidden=true;startCloud(1)}catch(_){authErr('Нет связи с интернетом')}}};
+ if(!A6[a])return;e.stopImmediatePropagation();A6[a]()},true);
+cloud&&cloud.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY')setTimeout(newPwUI,400)});
+setInterval(()=>{if(!document.hidden)pullNow()},180000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(pullNow,800)});
+// ===== Форматирование текста, экспорт в PDF, обучение =====
+let VW=0,FL=null,PF=null,TOUR=0,TS=0;
+const FF='-apple-system,Helvetica,Arial,sans-serif';
+function mdp(tx){return String(tx||'').split('\n').map(l=>{let h=0,li=0;if(/^#\s/.test(l)){h=1;l=l.slice(2)}else if(/^-\s/.test(l)){li=1;l=l.slice(2)}const toks=[];l.split(/(\*\*[^*]+\*\*|_[^_]+_)/).forEach(p=>{if(!p)return;if(p.startsWith('**')&&p.length>4)toks.push({t:p.slice(2,-2),b:1});else if(p[0]==='_'&&p.length>2&&p.endsWith('_'))toks.push({t:p.slice(1,-1),i:1});else toks.push({t:p})});return{h,li,toks}})}
+const mdi=a=>a.map(k=>k.b?`<b>${esc(k.t)}</b>`:k.i?`<i>${esc(k.t)}</i>`:esc(k.t)).join('');
+function mdh(tx){let o='',u=0;mdp(tx).forEach(l=>{if(l.li){o+=(u?'':'<ul>')+`<li>${mdi(l.toks)}</li>`;u=1}else{if(u){o+='</ul>';u=0}o+=l.h?`<h3>${mdi(l.toks)}</h3>`:l.toks.length?`<p>${mdi(l.toks)}</p>`:'<br>'}});return o+(u?'</ul>':'')}
+document.addEventListener('selectionchange',()=>{const t=document.activeElement;if(t&&t.tagName==='TEXTAREA'&&t.classList.contains('t'))FL={i:t.dataset.i!=null?+t.dataset.i:-1,s:t.selectionStart,e:t.selectionEnd}});
+function fmt(k){if(k==='v'){VW=!VW;render();return}if(!FL)return;const ta=FL.i>=0?document.querySelector(`textarea.t[data-i="${FL.i}"]`):document.querySelector('textarea.t[data-f="tx"]');if(!ta)return;let v=ta.value;const s=Math.min(FL.s,v.length),e=Math.min(FL.e,v.length);
+ if(k==='b'||k==='i'){const m=k==='b'?'**':'_';v=v.slice(0,s)+m+(v.slice(s,e)||'текст')+m+v.slice(e)}
+ else{const ls=v.lastIndexOf('\n',s-1)+1,pf=k==='h'?'# ':'- ';v=v.slice(0,ls)+(v.startsWith(pf,ls)?v.slice(ls+pf.length):pf+v.slice(ls))}
+ ta.value=v;if(ta.dataset.i!=null)SH().pt[+ta.dataset.i].tx=v;else SH().tx=v;ta.focus();fit(ta);save()}
+const li=src=>new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
+const PCSS='line{stroke:#000;stroke-width:1}.f{fill:#000;stroke:#000}.o{fill:none;stroke:#000;stroke-width:1.8}.st{stroke-width:1.5;fill:none}text{fill:#000;font-size:16px;font-family:sans-serif}.cl{font-size:46px}.lb{font-size:13px;font-weight:600;text-anchor:middle}.sg{fill:none;stroke:#000;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}.hl{display:none}';
+function blocksOf(){const out=[],add=s=>{if(s.pt)s.pt.forEach(p=>{if(p.k==='t')out.push({k:'md',t:p.tx});else if(p.k==='g')out.push({k:'grid',t:p.tx});else if(p.k==='p')out.push({k:'img',s:p.src});else if(p.k==='q')p.srcs.forEach(u=>out.push({k:'img',s:u}));else if(p.k==='m')out.push({k:'svg',o:p})});else if(s.ty==='music')out.push({k:'svg',o:s});else out.push({k:s.ty==='grid'?'grid':'md',t:s.tx||''});(s.ph||[]).forEach(u=>out.push({k:'img',s:u}))};
+ if(V.scr==='lec'){const s=SH();out.push({k:'h',t:s.title});add(s);return{t:s.title,b:out}}
+ const h=H();out.push({k:'h',t:h.title});if(h.task)out.push({k:'lbl',t:'Задание'},{k:'md',t:h.task});if(h.expl)out.push({k:'lbl',t:'Пояснение'},{k:'md',t:h.expl});out.push({k:'lbl',t:'Выполненное задание'});add(h.sh);return{t:h.title,b:out}}
+async function toPdf(bl){const W=1190,H=1684,M=80,CW=W-2*M,pg=[];let cv,cx,y;
+ const np=()=>{cv=document.createElement('canvas');cv.width=W;cv.height=H;cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,W,H);cx.fillStyle='#000';cx.textBaseline='top';pg.push(cv);y=M},need=h=>{if(y+h>H-M)np()};np();
+ const wrap=(toks,x0,w,sz,bold)=>{const lh=sz*1.45,ws=[];toks.forEach(k=>k.t.split(/(\s+)/).forEach(p=>{if(p)ws.push({p,b:k.b||bold,i:k.i})}));let x=x0;need(lh);ws.forEach(q=>{cx.font=`${q.i?'italic ':''}${q.b?'bold ':''}${sz}px ${FF}`;const mw=cx.measureText(q.p).width;if(x+mw>x0+w&&q.p.trim()){x=x0;y+=lh;need(lh)}if(x===x0&&!q.p.trim())return;cx.fillText(q.p,x,y);x+=mw});y+=lh};
+ for(const b of bl){
+  if(b.k==='h'){wrap([{t:b.t||'Без названия'}],M,CW,46,1);y+=14}
+  else if(b.k==='lbl'){y+=10;cx.fillStyle='#666';wrap([{t:b.t}],M,CW,24,1);cx.fillStyle='#000'}
+  else if(b.k==='md')mdp(b.t).forEach(l=>{if(!l.toks.length){y+=16;return}if(l.li){need(40);cx.font=`28px ${FF}`;cx.fillText('•',M+6,y);wrap(l.toks,M+36,CW-36,28)}else wrap(l.toks,M,CW,l.h?36:28,l.h)});
+  else if(b.k==='grid'){const c=26,cols=Math.floor(CW/c);const rows=[];String(b.t||'').split('\n').forEach(r=>{if(!r)rows.push('');for(let i=0;i<r.length;i+=cols)rows.push(r.slice(i,i+cols))});if(!rows.length)rows.push('');rows.forEach(r=>{need(c);cx.strokeStyle='#cfe0ee';cx.lineWidth=1;cx.beginPath();for(let i=0;i<=cols;i++){cx.moveTo(M+i*c,y);cx.lineTo(M+i*c,y+c)}cx.moveTo(M,y);cx.lineTo(M+cols*c,y);cx.moveTo(M,y+c);cx.lineTo(M+cols*c,y+c);cx.stroke();cx.font=`20px ui-monospace,Menlo,monospace`;cx.textAlign='center';[...r].forEach((ch,i)=>cx.fillText(ch,M+i*c+c/2,y+3));cx.textAlign='left';y+=c});y+=12}
+  else{let im=null;if(b.k==='img')im=await li(b.s);else{const sv=SEL;SEL=null;let s=musicSvg(b.o);SEL=sv;const hh=+s.match(/viewBox="0 0 340 (\d+)"/)[1];s=s.replace('<svg class="ms"',`<svg xmlns="http://www.w3.org/2000/svg" width="680" height="${hh*2}"`).replace('>',`><style>${PCSS}</style>`);const u=URL.createObjectURL(new Blob([s],{type:'image/svg+xml'}));im=await li(u);URL.revokeObjectURL(u)}
+   if(im){const k=Math.min(CW/im.width,(H-2*M)/im.height),w=im.width*k,h=im.height*k;need(h);cx.drawImage(im,M,y,w,h);y+=h+18}}}
+ const jp=pg.map(c=>Uint8Array.from(atob(c.toDataURL('image/jpeg',.82).split(',')[1]),ch=>ch.charCodeAt(0))),N=jp.length,enc=new TextEncoder(),parts=[],off=[];let len=0;
+ const add=x=>{if(typeof x==='string')x=enc.encode(x);parts.push(x);len+=x.length},o=(n,f)=>{off[n]=len;add(n+' 0 obj\n');f();add('\nendobj\n')};
+ add('%PDF-1.4\n');o(1,()=>add('<</Type/Catalog/Pages 2 0 R>>'));o(2,()=>add('<</Type/Pages/Count '+N+'/Kids['+jp.map((_,i)=>(3+3*i)+' 0 R').join(' ')+']>>'));
+ jp.forEach((x,i)=>{const p=3+3*i,c=`q 595 0 0 842 0 0 cm /I${i} Do Q`;o(p,()=>add(`<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</XObject<</I${i} ${p+2} 0 R>>>>/Contents ${p+1} 0 R>>`));o(p+1,()=>add(`<</Length ${c.length}>>\nstream\n${c}\nendstream`));o(p+2,()=>{add(`<</Type/XObject/Subtype/Image/Width ${W}/Height ${H}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${x.length}>>\nstream\n`);add(x);add('\nendstream')})});
+ const xr=len,tot=3*N+3;add(`xref\n0 ${tot}\n0000000000 65535 f \n`);for(let n=1;n<tot;n++)add(String(off[n]).padStart(10,'0')+' 00000 n \n');add(`trailer\n<</Size ${tot}/Root 1 0 R>>\nstartxref\n${xr}\n%%EOF`);
+ return new Blob(parts,{type:'application/pdf'})}
+async function exportPdf(){const d=$('#dlg');d.innerHTML='<div class="dc"><h3>Готовлю PDF…</h3><div class="mu">Это займёт несколько секунд.</div></div>';
+ try{const {t,b}=blocksOf(),blob=await toPdf(b);PF=new File([blob],((t||'konspekt').replace(/[^\wа-яА-ЯёЁ -]+/g,'').trim()||'konspekt')+'.pdf',{type:'application/pdf'});d.innerHTML=`<div class="dc"><h3>PDF готов</h3><div class="mu">${esc(PF.name)} · ${Math.round(PF.size/1024)} КБ</div><div class="br"><button class="b" data-a="dx">Закрыть</button><button class="b p" data-a="pdfgo">Сохранить / отправить</button></div></div>`}
+ catch(e){console.error(e);d.innerHTML='<div class="dc"><h3>Не удалось создать PDF</h3><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>'}}
+const _shr=shr;shr=function(){const d=$('#dlg');d.innerHTML='<div class="dc"><h3>Поделиться</h3><div class="ml"><button data-a="shp">📄 Сохранить как PDF</button><button data-a="shj">📤 Отправить файлом для «Тетради»</button></div><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>';d.hidden=false};
+const TOURS=[['📚','Предметы','Создайте предмет кнопкой «+». Внутри две вкладки: «Лекции» и «Домашние задания». Для каждой записи выбирается тип листка: обычный, в клетку или нотный.'],['✍️','Листки','В клетку есть панель математических знаков. На нотном листке выберите ноту, паузу, подпись или свой знак и коснитесь стана. Двойное касание по ноте или подписи выделяет её: можно двигать и менять.'],['📷','Вставки и текст','В обычной лекции кнопки сверху вставляют нотный стан, клетки и фото туда, где стоит курсор. Значки H, B, I и • оформляют текст, а 👁 показывает готовый вид.'],['☁️','Облако и копии','Значок 👤 открывает вход: тетрадь будет на всех ваших устройствах. В меню «⋯» расписание, копии, корзина и автосохранение, а кнопка ⇪ в лекции сохраняет PDF.']];
+function tourUI(n){TOUR=1;TS=n;const t=TOURS[n],d=$('#dlg');d.innerHTML=`<div class="dc" style="text-align:center"><div style="font-size:44px">${t[0]}</div><h3>${t[1]}</h3><div class="mu">${t[2]}</div><div class="dots">${TOURS.map((_,i)=>`<i class="${i===n?'on':''}"></i>`).join('')}</div><div class="br" style="justify-content:space-between"><button class="b ghost" data-a="tskip">Пропустить</button><button class="b p" data-a="tnext">${n===TOURS.length-1?'Начать':'Далее'}</button></div></div>`;d.hidden=false}
+function tourEnd(){TOUR=0;$('#dlg').hidden=true;S.cfg=S.cfg||{};S.cfg.tour=true;save();if(cloud&&!CU&&!S.cfg.skip)accUI(1)}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id;
+ const A7={fm(){fmt(id)},shp:exportPdf,shj(){$('#dlg').hidden=true;_shr()},
+  async pdfgo(){try{if(navigator.canShare&&navigator.canShare({files:[PF]}))await navigator.share({files:[PF]});else dl(PF,PF.name)}catch(_){}},
+  tnext(){TS>=TOURS.length-1?tourEnd():tourUI(TS+1)},tskip:tourEnd};
+ if(!A7[a])return;e.stopImmediatePropagation();A7[a]()},true);
+const _r6=render;render=function(){_r6();if(V.scr!=='lec'&&V.scr!=='hw')return;const ts=document.querySelectorAll('#app textarea.t');if(!ts.length)return;
+ const bar='<button data-a="fm" data-id="h"><b>H</b></button><button data-a="fm" data-id="b"><b>B</b></button><button data-a="fm" data-id="i"><i>I</i></button><button data-a="fm" data-id="l">•</button><button data-a="fm" data-id="v" class="'+(VW?'on':'')+'">'+(VW?'✎':'👁')+'</button>',ins=$('#app .tb.ins');
+ if(ins)ins.insertAdjacentHTML('beforeend',bar);else ts[0].insertAdjacentHTML('beforebegin','<div class="tb">'+bar+'</div>');
+ if(VW)ts.forEach(t=>{const d=document.createElement('div');d.className='md';d.innerHTML=mdh(t.value);t.replaceWith(d)})};
+load().then(()=>{PREV=ids();PS=new Set((S.sch||[]).map(x=>x.id));if(!(S.cfg&&S.cfg.tour))tourUI(0);startCloud()});
 </script></body></html>
