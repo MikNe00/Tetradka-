@@ -144,6 +144,9 @@ header .ic{color:var(--tx);opacity:.72}
 header{gap:0;padding-right:max(2px,calc((100% - 820px)/2))}
 header h1{flex:1 1 0;min-width:0}
 header .ic{flex:0 0 42px;width:42px;min-width:42px;height:44px;padding:0;margin:0;display:grid;place-items:center}
+
+/* === Админ-панель === */
+.bar{height:8px;border-radius:6px;background:var(--ln);overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ac);border-radius:6px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -201,7 +204,7 @@ document.addEventListener('click',e=>{
  else if(a==='delph'){SH().ph.splice(+id,1);save()}
  render()});
 $('#fab').onclick=()=>{
- if(V.scr==='subs')dlg('Новый предмет',{inp:'Название предмета'},n=>{if(!n)return;S.subs.push({id:uid(),name:n,lec:[],hw:[]});save();render()});
+ if(V.scr==='subs')dlg('Новый предмет',{inp:'Название предмета'},n=>{if(!n)return;if(LIM.max_subjects>0&&S.subs.length>=LIM.max_subjects){dlg('Лимит предметов',{msg:'Администратор ограничил число предметов: '+LIM.max_subjects+'.',ok:'Понятно'},null);return}S.subs.push({id:uid(),name:n,lec:[],hw:[]});save();render()});
  else if(V.tab==='lec')dlg('Новая лекция',{inp:'Тема лекции',ty:1,msg:'Выберите тип листка'},(n,ty)=>{const s=mk(n,ty);sub().lec.push(s);V={scr:'lec',sid:V.sid,id:s.id,tab:'lec'};save();render()});
  else dlg('Новое задание',{inp:'Название задания',ty:1,msg:'Тип листка для выполненного задания'},(n,ty)=>{const o={id:uid(),title:n||'Без названия',task:'',expl:'',done:false,sh:mk('',ty)};sub().hw.push(o);V={scr:'hw',sid:V.sid,id:o.id,tab:'hw'};save();render()})};
 document.addEventListener('input',e=>{const t=e.target,f=t.dataset.f;if(!f)return;(t.dataset.o==='h'?H():SH())[f]=t.type==='checkbox'?t.checked:t.value;if(t.tagName==='TEXTAREA')fit(t);save()});
@@ -367,14 +370,14 @@ const hasData=()=>(S.subs||[]).length>0||(S.sch||[]).length>0||(S.trash||[]).len
 async function walk(o,f){if(Array.isArray(o)){for(let i=0;i<o.length;i++)o[i]=await walk(o[i],f);return o}if(o&&typeof o==='object'){for(const k in o)o[k]=await walk(o[k],f);return o}return typeof o==='string'?await f(o):o}
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 const shrink=d=>new Promise(ok=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1000/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(ok,'image/jpeg',.6)};i.onerror=()=>ok(null);i.src=d});
-const QUOTA=30*1048576;let USED=0,QE=0,REFS=new Set();
+let QUOTA=30*1048576;let USED=0,QE=0,REFS=new Set();
 async function upPhoto(d){if(d.startsWith('sb:')&&d!=='sb:none')REFS.add(d.slice(3));if(!d.startsWith('data:image'))return d;const h=await sha(d),p=ALI[h]||CU.id+'/'+h+'.jpg';if(!UPD.has(p)){const b=await shrink(d);if(!b){PHE=1;return 'sb:none'}if(USED+b.size>QUOTA){QE=1;return 'sb:none'}const r=await cloud.storage.from('photos').upload(p,b,{contentType:'image/jpeg',upsert:true});if(r.error){PHE=1;return 'sb:none'}USED+=b.size;UPD.add(p);keepUp()}REFS.add(p);return 'sb:'+p}
 async function dnPhoto(s){if(!s.startsWith('sb:')||s==='sb:none')return s;const p=s.slice(3),{data,error}=await cloud.storage.from('photos').download(p);if(error||!data)return s;const d=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(data)});ALI[await sha(d)]=p;UPD.add(p);keepUp();return d}
 async function gz(s){try{const u=new Uint8Array(await new Response(new Blob([s]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());let b='';for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return 'gz:'+btoa(b)}catch(_){return s}}
 async function ungz(s){if(typeof s!=='string'||!s.startsWith('gz:'))return s;const b=atob(s.slice(3)),u=Uint8Array.from(b,c=>c.charCodeAt(0));return await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}
 async function photoUsage(){try{const {data}=await cloud.storage.from('photos').list(CU.id,{limit:1000}),l=data||[];USED=l.reduce((s,f)=>s+((f.metadata&&f.metadata.size)||0),0);return l}catch(_){return []}}
 async function cleanup(){const t=Date.now();if(t-((S.cfg&&S.cfg.cl)||0)<216e5)return;const fl=await photoUsage(),keep=new Set([...REFS].map(p=>p.split('/')[1])),old=fl.filter(f=>f.name&&!keep.has(f.name)&&t-Date.parse(f.created_at||f.updated_at||t)>864e5).map(f=>CU.id+'/'+f.name);if(old.length){await cloud.storage.from('photos').remove(old);old.forEach(p=>UPD.delete(p));keepUp()}S.cfg=S.cfg||{};S.cfg.cl=t;kv('w','s',S)}
-async function cloudPush(){if(!cloud||!CU||!CR||CB)return;CB=1;CP=0;CE=0;PHE=0;QE=0;REFS=new Set();setSt('Сохранение…');
+async function cloudPush(){if(!cloud||!CU||!CR||CB)return;if(LIM.blocked){setSt('Доступ к облаку ограничен администратором'+(LIM.reason?': '+LIM.reason:''));return}CB=1;CP=0;CE=0;PHE=0;QE=0;REFS=new Set();setSt('Сохранение…');
  try{const c=JSON.parse(JSON.stringify(S));await walk(c,upPhoto);const t=new Date().toISOString(),{error}=await cloud.from('notebooks').upsert({user_id:CU.id,data:await gz(JSON.stringify(c)),updated_at:t},{onConflict:'user_id'});if(error)throw error;S.cfg=S.cfg||{};S.cfg.syn=t;kv('w','s',S);
   setSt(QE?'Сохранено, но лимит фото в облаке (30 МБ) достигнут':PHE?'Сохранено, но часть фото не отправлена':'Синхронизировано · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
   if(!PHE&&!QE)cleanup().catch(()=>{})}
@@ -398,7 +401,7 @@ function mergeState(L,R){const pr=[],tr=new Map(),gn=new Map();
 async function applyRemote(row){const raw=await ungz(row.data),R=typeof raw==='string'?JSON.parse(raw):raw,{M,pr}=mergeState(S,R);for(const x of pr)await walk(x,dnPhoto);M.cfg=Object.assign({},S.cfg,{syn:row.updated_at,skip:true});S=M;await kv('w','s',S);IDX=null;PREV=ids();PS=new Set((S.sch||[]).map(x=>x.id));
  try{if(V.scr==='lec')SH().id;else if(V.scr==='hw')H().id;else if(V.scr==='sub')sub().id}catch(_){V={scr:'subs',tab:'lec'}}render()}
 async function cloudSync(u){CU=u;CR=false;try{localStorage.setItem('tp_user',JSON.stringify({id:u.id,email:u.email}))}catch(_){}setSt('Синхронизация…');render();
- try{await photoUsage();const {data,error}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',u.id).maybeSingle();if(error)throw error;if(data&&data.data)await applyRemote(data);CR=true;CP=1;render();await cloudPush()}
+ try{await photoUsage();await loadLimits();if(LIM.blocked){setSt('Доступ к облаку ограничен администратором'+(LIM.reason?': '+LIM.reason:''));render();return}const {data,error}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',u.id).maybeSingle();if(error)throw error;if(data&&data.data)await applyRemote(data);CR=true;CP=1;render();await cloudPush()}
  catch(e){setSt('Нет связи с облаком. Если вы без VPN, включите его.');console.error(e)}}
 async function pullNow(){if(!cloud||!CU||!CR||CB)return;const ae=document.activeElement;if((ae&&/TEXTAREA|INPUT|SELECT/.test(ae.tagName))||!$('#dlg').hidden)return;
  try{const syn=S.cfg&&S.cfg.syn,{data:h}=await cloud.from('notebooks').select('updated_at').eq('user_id',CU.id).maybeSingle();if(!h||(syn&&Date.parse(h.updated_at)<=Date.parse(syn)))return;const {data}=await cloud.from('notebooks').select('data,updated_at').eq('user_id',CU.id).maybeSingle();if(!data)return;CB=1;try{await applyRemote(data)}finally{CB=0}CP=1;await cloudPush()}catch(e){console.error(e)}}
@@ -594,5 +597,28 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
 const _menuLive=menu;menu=function(){_menuLive();$('#dlg .ml').insertAdjacentHTML('beforeend',`<button data-a="themeUI">${ic('palette')} Тема и акцент</button>`)};
 postRender();ST='dash';setAccent(ACCENT);
 
+// ===== Админ-панель и ограничения =====
+let LIM={},LNOTE='',AUS=[],ADMT='ov';
+IC.shield='<path d="M12 3 4.5 6v5.5c0 4.5 3.1 8 7.5 9.5 4.4-1.5 7.5-5 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>';
+async function loadLimits(){try{const {data,error}=await cloud.rpc('my_limits');if(error)throw error;LIM=data||{};QUOTA=Math.max(0,+LIM.photo_mb||0)*1048576;if(LIM.notice&&LNOTE!==LIM.notice){LNOTE=LIM.notice;bn(esc(LIM.notice),'')}}catch(_){LIM={}}}
+const mbf=b=>(b/1048576).toFixed(1)+' МБ';
+const barh=(v,max)=>`<div class="bar"><i style="width:${Math.min(100,v/max*100)}%"></i></div>`;
+async function admUI(t){ADMT=t||ADMT||'ov';const d=$('#dlg');
+ d.innerHTML=`<div class="dc" style="max-height:88vh;overflow:auto"><h3>Админ-панель</h3><div class="tabs" style="margin:8px 0">${[['ov','Обзор'],['st','Настройки'],['us','Люди']].map(x=>`<button class="${ADMT===x[0]?'on':''}" data-a="admt" data-id="${x[0]}">${x[1]}</button>`).join('')}</div><div id="admb"><p class="mu">Загрузка…</p></div><div class="br"><button class="b" data-a="dx">Закрыть</button></div></div>`;d.hidden=false;
+ try{if(ADMT==='ov')await admOv();else if(ADMT==='st')await admSt();else await admUs()}catch(e){$('#admb').innerHTML='<p class="aer">'+esc((e&&e.message)||'Ошибка')+'<br>Проверьте, что файл admin_setup.txt выполнен в Supabase.</p>'}}
+async function admOv(){const {data:s,error}=await cloud.rpc('admin_stats');if(error)throw error;
+ $('#admb').innerHTML=`<div class="mu">Пользователей: <b>${s.users}</b>${s.blocked?' · заблокировано: '+s.blocked:''}</div><h2>База данных (лимит 500 МБ)</h2><div>${mbf(s.db_bytes)}</div>${barh(s.db_bytes,500*1048576)}<div class="mu">Из них тетради: ${mbf(s.notebooks_bytes)}</div><h2>Фото (лимит 1 ГБ)</h2><div>${mbf(s.files_bytes)} · файлов: ${s.files}</div>${barh(s.files_bytes,1024*1048576)}`}
+async function admSt(){const {data:s,error}=await cloud.from('app_settings').select('*').eq('id',1).single();if(error)throw error;
+ $('#admb').innerHTML=`<label class="chk" style="margin:8px 0"><input type="checkbox" id="a_reg" ${s.registration_open?'checked':''}> Регистрация новых людей открыта</label><label class="chk" style="margin:8px 0"><input type="checkbox" id="a_cl" ${s.cloud_enabled?'checked':''}> Облако включено для всех</label><h2 style="margin:12px 0 4px">Предметов на человека (0 — без лимита)</h2><input id="a_ms" class="fi" type="number" min="0" value="${s.max_subjects}"><h2 style="margin:12px 0 4px">Фото в облаке на человека, МБ</h2><input id="a_ph" class="fi" type="number" min="0" value="${s.photo_mb}"><h2 style="margin:12px 0 4px">Сообщение для всех (показывается при входе)</h2><textarea id="a_nt" class="fi" rows="3" placeholder="Например: завтра облако не работает">${esc(s.notice)}</textarea><div id="aer" class="aer"></div><button class="b p wide" data-a="admsave">Сохранить настройки</button>`}
+async function admUs(){const {data,error}=await cloud.rpc('admin_users');if(error)throw error;AUS=data||[];
+ $('#admb').innerHTML=AUS.length?AUS.map(u=>`<div class="tr" data-a="admu" data-id="${u.user_id}" style="cursor:pointer"><div><b>${esc(u.email||'без почты')}</b><div class="mu">${Math.round(u.nb_bytes/1024)} КБ · фото ${mbf(u.photo_bytes)} · с ${new Date(u.created_at).toLocaleDateString('ru-RU')}</div></div>${u.blocked?'<span class="pill">заблокирован</span>':''}</div>`).join(''):'<p class="mu">Пока никого нет</p>'}
+function admUser(id){const u=AUS.find(x=>x.user_id===id);if(!u)return;const d=$('#dlg');
+ d.innerHTML=`<div class="dc" style="max-height:88vh;overflow:auto"><h3>${esc(u.email||'Пользователь')}</h3><label class="chk" style="margin:8px 0"><input type="checkbox" id="u_bl" ${u.blocked?'checked':''}> Закрыть доступ к облаку</label><input id="u_rs" class="fi" type="text" placeholder="Причина (её увидит человек)" value="${esc(u.reason||'')}"><h2 style="margin:12px 0 4px">Фото, МБ (пусто — как у всех)</h2><input id="u_ph" class="fi" type="number" min="0" value="${u.photo_mb==null?'':u.photo_mb}"><h2 style="margin:12px 0 4px">Предметов (пусто — как у всех)</h2><input id="u_ms" class="fi" type="number" min="0" value="${u.max_subjects==null?'':u.max_subjects}"><div id="aer" class="aer"></div><div class="br"><button class="b" data-a="admt" data-id="us">Назад</button><button class="b p" data-a="admusave" data-id="${id}">Сохранить</button></div></div>`;d.hidden=false}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,id=el.dataset.id;
+ const A11={adm(){admUI('ov')},admt(){admUI(id)},admu(){admUser(id)},
+  async admsave(){const {error}=await cloud.from('app_settings').update({registration_open:$('#a_reg').checked,cloud_enabled:$('#a_cl').checked,max_subjects:Math.max(0,Math.floor(+$('#a_ms').value||0)),photo_mb:Math.max(0,Math.floor(+$('#a_ph').value||0)),notice:$('#a_nt').value.trim()}).eq('id',1);authErr(error?error.message:'Сохранено',!error);if(!error){LNOTE='';loadLimits()}},
+  async admusave(){const n=v=>v===''?null:Math.max(0,Math.floor(+v||0)),{error}=await cloud.from('profiles').update({blocked:$('#u_bl').checked,reason:$('#u_rs').value.trim(),photo_mb:n($('#u_ph').value),max_subjects:n($('#u_ms').value)}).eq('user_id',id);if(error){authErr(error.message);return}admUI('us')}};
+ if(!A11[a])return;e.stopImmediatePropagation();A11[a]()},true);
+const _mn2=menu;menu=function(){_mn2();if(LIM.admin)$('#dlg .ml').insertAdjacentHTML('beforeend',`<button data-a="adm">${ic('shield')} Админ-панель</button>`)};
 load().then(()=>{PREV=ids();PS=new Set((S.sch||[]).map(x=>x.id));if(!(S.cfg&&S.cfg.tour))tourUI(0);startCloud()});
 </script></body></html>
